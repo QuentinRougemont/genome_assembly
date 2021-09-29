@@ -35,7 +35,8 @@ Stuff I used with HiFi only, no HiC, trio, ONT, linked or short reads were avail
 run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obtain an assembly and assess quality  
 
 ##	Details:  
-	* **1. look at kmer distribution, genome length, and heterozygosity with GenomeScope**
+
+ * **1. look at kmer distribution, genome length, and heterozygosity with GenomeScope**
 	
 	This step will help understand the data and optimize parameters for hifiasm assembly
 
@@ -59,7 +60,7 @@ run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obta
 
 		the genome length is ~266mb, with approximately 80% unique k-mer and an heterozygosity of 2.8%  
 
-	* **2. look for potential contamination**
+ * **2. look for potential contamination**
 
 
 		* download data from bacteria, fungi, virus, archaea, protozoaires using ncbi [donwload](https://github.com/kblin/ncbi-genome-download)  
@@ -81,18 +82,18 @@ run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obta
 			these scripts may help: `01.scripts/03.b_reshape.minimap.sh 01.scripts/03.c_compare.minimap.results.R`  
 			then I use [qiime](https://github.com/QuentinRougemont/genome_assembly/blob/master/01.scripts/06.filter_raw_input.sh) to remove blacklisted sequences  
 
-	* **3. perform assembly on the cleaned assembly**
+ * **3. perform assembly on the cleaned assembly**
 		simply use hifiasm. look at the [documentation](https://hifiasm.readthedocs.io/en/latest/index.html), [faq](https://hifiasm.readthedocs.io/en/latest/faq.html) and [github issues](https://github.com/chhylp123/hifiasm/issues) for optimisation as everything is well documented.  
 		see example of script here: `01.scripts/07.hifiasm.sh`  
 			I've especially explored the use of different -s and -o parameters to optimize assembly size but default parameters already produced almost what we expected.   
 
-	* **4. generate fasta** 
+ * **4. generate fasta** 
 		Depending on your need you may want the primary assembly only, the two hap* approximately phased assembly, or anything else  
 
-	* **5. look at quality.**  
+ * **5. look at quality.**  
 		Use bash busco, quast, merqury, etc to assess assembly quality, NG50, N50, length of contig...  
  
 		I used merqury only to obtain QV scores as these are not from trios. It requires some additional tools [betools](https://bedtools.readthedocs.io/en/latest/content/installation.html) and [samtools](http://www.htslib.org/)   
 
-	* **6 compare to other genome :** 
+ * **6 compare to other genome :** 
 		dgenies can be used for that purpose  
