@@ -44,7 +44,7 @@ see  `01.scripts/01.jellyfish_and_genomescope.sh`
 
 here are some details:     
 	```
-	1. conting k-mer frequencies
+	1. conting k-mer frequencies:
 	jellyfish count -C -m 21 -s 1000000000 -t 40 $input -o reads.jf 
 	2. export kmer count histogram:
 	jellyfish histo -t 40 reads.jf > reads.histo  
