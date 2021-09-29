@@ -32,9 +32,9 @@ Stuff I used with HiFi only, no HiC, trio, ONT, linked or short reads were avail
 
 # Assembly of HiFi data
 
-	run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obtain an assembly and assess quality  
+run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obtain an assembly and assess quality  
 
-	##	Details:  
+##	Details:  
 	* **1. look at kmer distribution, genome length, and heterozygosity with GenomeScope**
 	
 	This step will help understand the data and optimize parameters for hifiasm assembly
