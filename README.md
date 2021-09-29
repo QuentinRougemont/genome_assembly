@@ -90,7 +90,13 @@ Here is an example graph:
 	Depending on your need you may want the primary assembly only, the two hap* approximately phased assembly, or anything else  
 
  * **5. look at quality.**  
-	Use bash busco, quast, merqury, etc to assess assembly quality, NG50, N50, length of contig...  
+	Use bash, busco, quast, merqury, etc to assess assembly quality, NG50, N50, length of contig...
+	these scripts may be usefull:
+	```
+	sort_gfa_by_contig_length.sh
+	sort_gfa_by_rd.sh
+	get_total_length_of_gfa.sh
+	``` 
  
    I used merqury only to obtain QV scores as these are not from trios.  
    It requires some additional tools [betools](https://bedtools.readthedocs.io/en/latest/content/installation.html) and [samtools](http://www.htslib.org/)   
