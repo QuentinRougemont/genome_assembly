@@ -40,7 +40,7 @@ run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obta
 	
 This step will help understand the data and optimize parameters for hifiasm assembly
 
-see details in `01.scripts/01.jellyfish_and_genomescope.sh` 
+see details in `01.scripts/01.jellyfish_and_genomescope.sh`   
 
 	```
 	#only three steps: 
