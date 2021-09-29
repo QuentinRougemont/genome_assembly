@@ -54,7 +54,7 @@ here are some details:
 	```
 		
 Here is an example graph:
-  ![example_graph](https://github.com/QuentinRougemont/gatk_haplotype/blob/master/pictures/example.png)  
+  ![example_graph](https://github.com/QuentinRougemont/genome_assembly/blob/master/pictures/example.png)  
 
 	We see the two kmers peaks at a coverage of ~60 and ~120 representing heterozygous and homozyguous peak respectively  
 
