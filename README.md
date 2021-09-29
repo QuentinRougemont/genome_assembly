@@ -44,20 +44,17 @@ see  `01.scripts/01.jellyfish_and_genomescope.sh`
 
 here are some details:     
 	```
-	#only three steps:
 	1. conting k-mer frequencies
 	jellyfish count -C -m 21 -s 1000000000 -t 40 $input -o reads.jf
-
 	2. export kmer count histogram:
 	jellyfish histo -t 40 reads.jf > reads.histo 
-
 	3. Run GenomeScope:
 	Rscript genomescope.R histogram_file k-mer_length read_length output_dir [kmer_max] [verbose] 
 	#or use the [online tools](http://qb.cshl.edu/genomescope/info.php)
 	```
 		
-	Here is an example graph:
-      ![example_graph](https://github.com/QuentinRougemont/gatk_haplotype/blob/master/pictures/example.png)  
+Here is an example graph:
+  ![example_graph](https://github.com/QuentinRougemont/gatk_haplotype/blob/master/pictures/example.png)  
 
 	We see the two kmers peaks at a coverage of ~60 and ~120 representing heterozygous and homozyguous peak respectively  
 
