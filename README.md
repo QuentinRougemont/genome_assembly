@@ -85,6 +85,10 @@ Here is an example graph:
 		simply use hifiasm. look at the [documentation](https://hifiasm.readthedocs.io/en/latest/index.html), [faq](https://hifiasm.readthedocs.io/en/latest/faq.html) and [github issues](https://github.com/chhylp123/hifiasm/issues) for optimisation as everything is well documented.  
 		see example of script here: `01.scripts/07.hifiasm.sh`  
 			I've especially explored the use of different -s and -o parameters to optimize assembly size but default parameters already produced almost what we expected.   
+		-s parameter: decrease it to avoid missassembly, perform more purging and decrease assembly size  
+		-O parameter: decrease it to avoid missassembly,  
+		-D & -N can be increased to increased assembly contiguity.  
+		Explore a combination of different parameter to see how it change the results!
 
  * **4. generate fasta** 
 	Depending on your need you may want the primary assembly only, the two hap* approximately phased assembly, or anything else  
