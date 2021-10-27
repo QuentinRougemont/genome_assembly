@@ -14,8 +14,7 @@ module load gcc/8.3.0
 module load jellyfish/2.3.0
 
 input=$1 #fastq.gz read from HiFi
-jellyfish count -C -m 21 -s 1000000000 -t 40 $input -o reads.jf
-
+jellyfish count -C -m 21 -s 1000000000 -t 40 <(zcat $input) -o reads.jf
 
 jellyfish histo -t 40 reads.jf > reads.histo
 
