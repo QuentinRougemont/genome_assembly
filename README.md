@@ -80,6 +80,12 @@ Here is an example graph:
 * ultimately remove sequence that you feel derived from putative contaminations.   
 			these scripts may help: `01.scripts/03.b_reshape.minimap.sh 01.scripts/03.c_compare.minimap.results.R`  
 			then I use [qiime](https://github.com/QuentinRougemont/genome_assembly/blob/master/01.scripts/06.filter_raw_input.sh) to remove blacklisted sequences  
+			You may need to convert the fastq into fasta for some applications. It is easy with sed:
+			```
+			sed -n '1~4sp;2~4p' input.fq > output.fa 
+			#if compressed:
+			zcat input | sed -n '1~4sp;2~4p' > output.fa
+			```
 
  * **3. perform assembly on the cleaned assembly**
 		simply use hifiasm. look at the [documentation](https://hifiasm.readthedocs.io/en/latest/index.html), [faq](https://hifiasm.readthedocs.io/en/latest/faq.html) and [github issues](https://github.com/chhylp123/hifiasm/issues) for optimisation as everything is well documented.  
