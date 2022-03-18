@@ -113,7 +113,8 @@ Here is an example graph:
 	busco -c8 -o output_busco -i your_fasta  -l lepidoptera_odb10 -m geno
 	```
 
-	In my case the busco score looks not to bad:
+	In my case the busco score looks not to bad:  
+	
 --------------------------------------------------
 |Results from dataset lepidoptera_odb10           |
 --------------------------------------------------
@@ -128,8 +129,9 @@ Here is an example graph:
 
 
 
+
 	
-	* **merqury** 
+	* **_merqury_**  
 
    I used merqury only to obtain QV scores as these are not from trios.  
    It requires some additional tools [betools](https://bedtools.readthedocs.io/en/latest/content/installation.html) and [samtools](http://www.htslib.org/)   
