@@ -112,6 +112,22 @@ Here is an example graph:
 	```
 	busco -c8 -o output_busco -i your_fasta  -l lepidoptera_odb10 -m geno
 	```
+
+	In my case the busco score looks not to bad:
+--------------------------------------------------
+|Results from dataset lepidoptera_odb10           |
+--------------------------------------------------
+|C:98.6%[S:98.2%,D:0.4%],F:0.2%,M:1.2%,n:5286     |
+|5211   Complete BUSCOs (C)                       |
+|5190   Complete and single-copy BUSCOs (S)       |
+|21     Complete and duplicated BUSCOs (D)        |
+|12     Fragmented BUSCOs (F)                     |
+|63     Missing BUSCOs (M)                        |
+|5286   Total BUSCO groups searched               |
+--------------------------------------------------
+
+
+
 	
 	* **merqury** 
 
@@ -151,6 +167,7 @@ ln -s ../read.meryl
 
 example results:
 ```
+seq	UniqKmer KmerInBoth	QV	ErrorRate
 hap1	1484	294577935	65.7652	2.65144e-07
 hap2	1118	298221533	67.0485	1.9731e-07
 Both	2602	592799468	66.3635	2.31019e-07
@@ -158,9 +175,42 @@ Both	2602	592799468	66.3635	2.31019e-07
 
 That seems rather good!
 
+#we can look at the k-mer duplicity distribution to make sure everything is OK:
+![example_graph](https://github.com/QuentinRougemont/genome_assembly/blob/main/pictures/Fig2.png)  
 
 
-	
+The graph look ok but we see an excess of k-mer with low read depth (i.e. we will remove them) later 
+
+
+#when considering the busco score on each separate parental assembly the number of duplicated reads were (very sligthly) higher than in the primary assembly.
+#therefore purged_dups could be used to reduce this:
+
+	* **purged_dups**
+
+```bash
+ref=your_reference.p_ctg.fa.gz         
+readcss=hifi.fastq.gz
+minimap2 -xasm20 -t 20 $ref $readcss | gzip -c - > aln.paf.gz
+
+./bin/pbcstat *.paf.gz #(produces PB.base.cov and PB.stat files)
+./bin/calcuts PB.stat > cutoffs 2>calcults.log
+
+#here I modify the cutoffs to remove the seq with k-mer depth below 20
+
+bin/split_fa $ref > $ref.split
+minimap2 -xasm5 -DP $ref.split $ref.split | gzip -c - > $ref.split.self.paf.gz
+
+bin/purge_dups -2 -T cutoffs -c PB.base.cov $ref.split.self.paf.gz > dups.bed 2> purge_dups.log
+
+bin/get_seqs -e dups.bed $ref
+
+```	
+
+this was done for each parental assembly and the primary reference.
+
+	* then run busco again
+	on each assembly
+
  
  * **6 compare to other genome :** 
 		**dgenies** can be used for that purpose  
