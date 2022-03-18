@@ -113,8 +113,9 @@ Here is an example graph:
 	busco -c8 -o output_busco -i your_fasta  -l lepidoptera_odb10 -m geno
 	```
 
-	In my case the busco score looks not to bad:  
-	
+In my case the busco score looks not to bad:  
+
+```sh
 --------------------------------------------------
 |Results from dataset lepidoptera_odb10           |
 --------------------------------------------------
@@ -126,8 +127,9 @@ Here is an example graph:
 |63     Missing BUSCOs (M)                        |
 |5286   Total BUSCO groups searched               |
 --------------------------------------------------
+```
 
-
+We will get back to that later.
 
 
 	
