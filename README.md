@@ -219,3 +219,9 @@ on each assembly
 
 * **6 compare to other genome :** 
 		**dgenies** can be used for that purpose  
+
+
+* **7 annotate TE with repeatmodeler** 
+
+* **8 perform prediction of gene with RNAseq**
+
