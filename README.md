@@ -107,9 +107,60 @@ Here is an example graph:
 	sort_gfa_by_rd.sh
 	get_total_length_of_gfa.sh
 	``` 
- 
+	* **busco**
+	busco is very simple to run on a genomic fasta file:
+	```
+	busco -c8 -o output_busco -i your_fasta  -l lepidoptera_odb10 -m geno
+	```
+	
+	* **merqury** 
+
    I used merqury only to obtain QV scores as these are not from trios.  
    It requires some additional tools [betools](https://bedtools.readthedocs.io/en/latest/content/installation.html) and [samtools](http://www.htslib.org/)   
 
+simply follow github: https://github.com/marbl/merqury/wiki
+
+```bash
+1 prepare meryl dbs fille
+1.1. find best kmer:
+~/software/merqury-1.3/best_k.sh 262666002 #genome size in bp according to genome scope.
+~/software/merqury-1.3/best_k.sh 319000002 #genome size in bp according to biology.
+#best kmer is ~19
+
+#1.2. Build k-mer dbs with meryl
+#k=19
+#read=/scratch/qrougemont/pacbio/filter_dataset/filter2/output.fastq.gz
+
+#meryl k=$k count output read.meryl $read
+
+#2. Overall assembly evalution:
+#2.1. reference free QV estimate
+cd test_HiFi
+ln -s ../read.meryl
+~/software/merqury-1.3/merqury.sh read.meryl test.p_ctg.fasta  test_HiFi > hifi.log
+
+cd ../hap1.HiFi
+ln -s ../read.meryl
+~/software/merqury-1.3/merqury.sh read.meryl test.hap1.p_ctg.fasta  hap1.HiFi > hifi.hap1.log
+
+cd ../hap2.HiFi
+ln -s ../read.meryl
+~/software/merqury-1.3/merqury.sh read.meryl test.hap2.p_ctg.fasta  hap2.HiFi > hifi.hap2.log
+
+```
+
+example results:
+```
+hap1	1484	294577935	65.7652	2.65144e-07
+hap2	1118	298221533	67.0485	1.9731e-07
+Both	2602	592799468	66.3635	2.31019e-07
+```
+
+That seems rather good!
+
+
+
+	
+ 
  * **6 compare to other genome :** 
 		**dgenies** can be used for that purpose  
