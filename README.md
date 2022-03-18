@@ -133,12 +133,12 @@ We will get back to that later.
 
 
 	
-	* **_merqury_**  
+* **merqury**  
 
-   I used merqury only to obtain QV scores as these are not from trios.  
-   It requires some additional tools [betools](https://bedtools.readthedocs.io/en/latest/content/installation.html) and [samtools](http://www.htslib.org/)   
+ I used merqury only to obtain QV scores as these are not from trios.  
+  It requires some additional tools [betools](https://bedtools.readthedocs.io/en/latest/content/installation.html) and [samtools](http://www.htslib.org/)   
 
-simply follow github: https://github.com/marbl/merqury/wiki
+simply follow github: https://github.com/marbl/merqury/wiki :
 
 ```bash
 1 prepare meryl dbs fille
@@ -189,7 +189,7 @@ The graph look ok but we see an excess of k-mer with low read depth (i.e. we wil
 #when considering the busco score on each separate parental assembly the number of duplicated reads were (very sligthly) higher than in the primary assembly.
 #therefore purged_dups could be used to reduce this:
 
-	* **purged_dups**
+* **purged_dups**
 
 ```bash
 ref=your_reference.p_ctg.fa.gz         
@@ -212,9 +212,10 @@ bin/get_seqs -e dups.bed $ref
 
 this was done for each parental assembly and the primary reference.
 
-	* then run busco again
-	on each assembly
+* **then run busco again**
 
- 
- * **6 compare to other genome :** 
+on each assembly
+
+
+* **6 compare to other genome :** 
 		**dgenies** can be used for that purpose  
