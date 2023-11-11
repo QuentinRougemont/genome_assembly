@@ -189,7 +189,7 @@ The graph look ok but we see an excess of k-mer with low read depth (i.e. we wil
 #when considering the busco score on each separate parental assembly the number of duplicated reads were (very sligthly) higher than in the primary assembly.
 #therefore purged_dups could be used to reduce this:
 
-* **purged_dups**
+* **purged_dups** (see https://github.com/dfguan/purge_dups)
 
 ```bash
 ref=your_reference.p_ctg.fa.gz         
@@ -218,10 +218,11 @@ on each assembly
 
 
 * **6 compare to other genome :** 
-		**dgenies** can be used for that purpose  
+		**dgenies** can be used for that purpose
+  		**minimap** + pafr + SV detections methods
 
-
-* **7 annotate TE with repeatmodeler** 
+* **7 annotate TE with repeatmodeler**
 
 * **8 perform prediction of gene with RNAseq**
 
+For step 7 and 8 see our example pipeline here:https://github.com/QuentinRougemont/genome_annotation
