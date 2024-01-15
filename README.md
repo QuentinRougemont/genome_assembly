@@ -7,13 +7,13 @@ Stuff I used with HiFi only, no HiC, trio, ONT, linked or short reads were avail
 
 ### tested on linux, depends on gcc, python, R, java. Conda is usefull to ease software installations  
 
-**hifiasm** software avialble [here](https://github.com/chhylp123/hifiasm)  
+**hifiasm** software availalble [here](https://github.com/chhylp123/hifiasm)  
 
-**minimap** software availalbe [here](https://github.com/lh3/minimap2)  
+**minimap** software available [here](https://github.com/lh3/minimap2)  
 
 **jellyfish** software available [here](http://www.genome.umd.edu/jellyfish.html#Release)  
 
-**genomescope** tools avaible [here for the online version](http://qb.cshl.edu/genomescope/info.php) and [here for running it from the command-line;](https://github.com/schatzlab/genomescope)  
+**genomescope** tools available [here for the online version](http://qb.cshl.edu/genomescope/info.php) and [here for running it from the command-line;](https://github.com/schatzlab/genomescope)  
 
 **ncbi-genome-download** software available [here](https://github.com/kblin/ncbi-genome-download)  
 
