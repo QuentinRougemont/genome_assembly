@@ -79,26 +79,25 @@ Here is an example graph:
 		`01.scripts/01.scripts/03.minimap_and_filtering.sh`
 
 		the scripts takes 3 arguments:
-
- 1 - the species name used for NCBI download  
+		* 1 - the species name used for NCBI download  
  
- 2 - the name of the raw fastq file  
+ 		* 2 - the name of the raw fastq file  
  
-3 - the type of data (a string: either "PB" or "ONT" with PB for pacbio-hifi and ONT for ONT)  
+		* 3 - the type of data (a string: either "PB" or "ONT" with PB for pacbio-hifi and ONT for ONT)  
  
- 
-* ultimately remove sequence that you feel derived from putative contaminations.
-* This should be performed automatically from the above script.
+ * The script above should ultimately remove sequence that seems derived from putative contaminations. 
 
 
 
- * **3. perform assembly on the cleaned assembly**
+ * **3. perform assembly on the cleaned RAW data**
 		simply use hifiasm. look at the [documentation](https://hifiasm.readthedocs.io/en/latest/index.html), [faq](https://hifiasm.readthedocs.io/en/latest/faq.html) and [github issues](https://github.com/chhylp123/hifiasm/issues) for optimisation as everything is well documented.  
-		see example of script here: `01.scripts/07.hifiasm.sh`  
-			I've especially explored the use of different -s and -o parameters to optimize assembly size but default parameters already produced almost what we expected.   
-		-s parameter: decrease it to avoid missassembly, perform more purging and decrease assembly size  
-		-O parameter: decrease it to avoid missassembly,  
-		-D & -N can be increased to increased assembly contiguity.  
+		see example of script here: `01.scripts/07.hifiasm.sh`
+  
+			I've especially explored the use of different -s and -o parameters to optimize assembly size but default parameters already produced almost what we expected.
+   
+	*	-s parameter: decrease it to avoid missassembly, perform more purging and decrease assembly size 
+	*	-O parameter: decrease it to avoid missassembly,  
+	*	-D & -N can be increased to increased assembly contiguity.  
 		Explore a combination of different parameter to see how it change the results!
 
  * **4. generate fasta** 
