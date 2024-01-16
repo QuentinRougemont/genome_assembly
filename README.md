@@ -67,18 +67,25 @@ Here is an example graph:
 
 	* download data from bacteria, fungi, virus, archaea, protozoaires using ncbi [donwload](https://github.com/kblin/ncbi-genome-download)  
 		exemple: 
-		ncbi-genome-download --formats fasta --refseq-categories reference bacteria,viral,fungi,protozoa,arachaea  
+		ncbi-genome-download --formats fasta --refseq-categories reference bacteria,viral,protozoa,arachaea  
 		
-	* download insect genome (or other closely related species) on NCBI. This is important to use as a null as minimap will align many sequences to putative contaminant even with low mapping quality    
-			see scripts `01.scripts/02.download_contaminant_human_and_focal_species.sh` 
+	* download genome of several closely related species to your focal organsims on NCBI. This is important to use as a null as minimap will align many sequences to putative contaminant even with low mapping quality    
+			see script:
+   		*  `01.scripts/02.download_contaminant_human_and_focal_species.sh`
 
-	* concatenate every contaminant in a single fasta and insert an ID for contaminant, insect, and human  (`e.g. zcat RefSeq/\*/GCF\*/\*fna.gz |sed 's/^>/>contam-/g'  > contaminant.fasta`)  
+        	This script takes 1 arguments:
+        		* 1 - "species" which is the name of the species/lineage/major group you want to download from NCBI (e.g. insect, fungi, etc...)
+
+			* it will:
+     * donwloand the data
+     * concatenate everything in a single fasta and insert an ID for your focal species, potential contaminant, and human  (`e.g. zcat RefSeq/\*/GCF\*/\*fna.gz |sed 's/^>/>contam-/g'  > contaminant.fasta`)  
 	
-	* then perform minimap alignment and validate with blast.  
+	
+ * then we perform minimap alignment and validate with blast.  
 		see:
 		`01.scripts/01.scripts/03.minimap_and_filtering.sh`
 
-		the scripts takes 3 arguments:
+		this script takes 3 arguments:
 		* 1 - the species name used for NCBI download  
  
  		* 2 - the name of the raw fastq file  
