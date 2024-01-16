@@ -25,16 +25,18 @@ Stuff I used with HiFi only, no HiC, trio, ONT, linked or short reads were avail
 
 **quast** [software](https://sourceforge.net/projects/quast/)
 
-**qiime** [software](http://qiime.org/install/install.html) which can be installed with conda
-
 **mercury**[software](https://github.com/marbl/merqury)
+
+**bedtools**[software](https://bedtools.readthedocs.io/en/latest/index.html) 
 
 
 # Assembly of HiFi data
 
+Note: For ONT data see code [in this repo](https://github.com/QuentinRougemont/ONT_assembly)
+
 run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obtain an assembly and assess quality  
 
-##	Details:  
+##	Step by Step guide :  
 
  * **1. look at kmer distribution, genome length, and heterozygosity with GenomeScope**
 	
@@ -67,15 +69,19 @@ Here is an example graph:
 		ncbi-genome-download --formats fasta --refseq-categories reference bacteria,viral,fungi,protozoa,arachaea  
 		
 	* download insect genome (or other closely related species) on NCBI. This is important to use as a null as minimap will align many sequences to putative contaminant even with low mapping quality    
-			see scripts `01.scripts/02.download_contaminant_human_and_insect.sh` 
+			see scripts `01.scripts/02.download_contaminant_human_and_focal_species.sh` 
 
 	* concatenate every contaminant in a single fasta and insert an ID for contaminant, insect, and human  (`e.g. zcat RefSeq/\*/GCF\*/\*fna.gz |sed 's/^>/>contam-/g'  > contaminant.fasta`)  
 	
 	* then perform minimap alignment and validate with blast.  
-		see: `01.scripts/03.a_run_minimap.sh`  
-		for blast :  
-			`01.scripts/04.makeblastdb.sh` and `01.scripts/05.blast.sh`  
-
+		see: `01.scripts/01.scripts/03.minimap_and_filtering.sh
+		the scripts takes 3 arguments:
+		1 - the species name used for NCBI download  
+ 
+		2 - the name of the raw fastq file  
+ 
+		3 - the type of data (a string: either "PB" or "ONT" with PB for pacbio-hifi and ONT for ONT)  
+ 
  
 * ultimately remove sequence that you feel derived from putative contaminations.   
 			these scripts may help: `01.scripts/03.b_reshape.minimap.sh 01.scripts/03.c_compare.minimap.results.R`  
