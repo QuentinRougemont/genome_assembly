@@ -44,8 +44,9 @@ This step will help understand the data and optimize parameters for hifiasm asse
 
 see  `01.scripts/01.jellyfish_and_genomescope.sh`  
 
-	here are some details:     
-	```
+here are some details:     
+ 
+	```sh
 	1. conting k-mer frequencies:
 	jellyfish count -C -m 21 -s 1000000000 -t 40 $input -o reads.jf 
 	2. export kmer count histogram:
@@ -74,24 +75,22 @@ Here is an example graph:
 	* concatenate every contaminant in a single fasta and insert an ID for contaminant, insect, and human  (`e.g. zcat RefSeq/\*/GCF\*/\*fna.gz |sed 's/^>/>contam-/g'  > contaminant.fasta`)  
 	
 	* then perform minimap alignment and validate with blast.  
-		see: `01.scripts/01.scripts/03.minimap_and_filtering.sh
+		see:
+		`01.scripts/01.scripts/03.minimap_and_filtering.sh`
+
 		the scripts takes 3 arguments:
-		1 - the species name used for NCBI download  
+
+ 1 - the species name used for NCBI download  
  
-		2 - the name of the raw fastq file  
+ 2 - the name of the raw fastq file  
  
-		3 - the type of data (a string: either "PB" or "ONT" with PB for pacbio-hifi and ONT for ONT)  
+3 - the type of data (a string: either "PB" or "ONT" with PB for pacbio-hifi and ONT for ONT)  
  
  
-* ultimately remove sequence that you feel derived from putative contaminations.   
-			these scripts may help: `01.scripts/03.b_reshape.minimap.sh 01.scripts/03.c_compare.minimap.results.R`  
-			then I use [qiime](https://github.com/QuentinRougemont/genome_assembly/blob/master/01.scripts/06.filter_raw_input.sh) to remove blacklisted sequences  
-			You may need to convert the fastq into fasta for some applications. It is easy with sed:
-			```
-			sed -n '1~4sp;2~4p' input.fq > output.fa 
-			#if compressed:
-			zcat input | sed -n '1~4sp;2~4p' > output.fa
-			```
+* ultimately remove sequence that you feel derived from putative contaminations.
+* This should be performed automatically from the above script.
+
+
 
  * **3. perform assembly on the cleaned assembly**
 		simply use hifiasm. look at the [documentation](https://hifiasm.readthedocs.io/en/latest/index.html), [faq](https://hifiasm.readthedocs.io/en/latest/faq.html) and [github issues](https://github.com/chhylp123/hifiasm/issues) for optimisation as everything is well documented.  
