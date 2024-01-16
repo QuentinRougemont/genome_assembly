@@ -73,11 +73,12 @@ Here is an example graph:
 			see script:
    		*  `01.scripts/02.download_contaminant_human_and_focal_species.sh`
 
-        	This script takes 1 arguments:
+        	This script takes 1 single argument:
+        
         		* 1 - "species" which is the name of the species/lineage/major group you want to download from NCBI (e.g. insect, fungi, etc...)
 
 			* it will:
-     * donwloand the data
+     * download the data
      * concatenate everything in a single fasta and insert an ID for your focal species, potential contaminant, and human  (`e.g. zcat RefSeq/\*/GCF\*/\*fna.gz |sed 's/^>/>contam-/g'  > contaminant.fasta`)  
 	
 	
