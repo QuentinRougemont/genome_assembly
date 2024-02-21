@@ -31,7 +31,6 @@ fi
 
 #print only wanted columns:
 zcat minimap2.paf.gz |awk '$12 > 29 && $6 ~/contam/ {print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$12}' > contam.tmp
-species="fung"
 zcat minimap2.paf.gz |awk -v spe=$species '$12 > 29 && $6 ~ spe {print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$12}' > spe.tmp 
 
 #run Rscript to extract contaminant: 
