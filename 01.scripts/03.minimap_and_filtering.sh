@@ -74,9 +74,13 @@ masked_fasta2="${fastq%.f*q*}".maskedfull.fasta
 
 bedtools maskfasta -fi $masked_fasta -bed putative_contaminant_from_blast.bed -fo "$masked_fasta2"
 
+# ---- step 5 --- create a stringeant filtration by removing all putativate contaminant from minimap
+
+awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("%s", $0); } else { printf("\t%s", $0); } }' "$fasta" |\
+     grep -vFf <(cut -f1 putative_contaminant.withnospecies_overlap.bed ) - | tr "\t" "\n" > ${fasta﻿%.fasta}.nocomtam.fasta
 
 
-#- Now run the assembler
+#- Now run the assembler for the different cleaned output and look at the differences
 
 
 
