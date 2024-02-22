@@ -21,13 +21,17 @@ O=$2  #o value
 #-N 120
 #--purge-max 100
 #--hom-cov 1 
+#--l0 can be used for low het genome 
+
+mkdir LOG/ 2>/dev/null 
 
 #running hifiasm
-hifiasm -o ${nput%.fastq.gz}.no_contam.asm.s"$s".O$O \
+hifiasm -o ${input%.fa**}.no_contam.asm.s"$s".O$O \
 	-s "$s" \
 	-O $O \
 	-t 40 \
-	$input
+	$input 2>&1 |tee LOG/log.${input%.fa**}.no_contam.asm.s"$s".O$O 
+ 
 
 exit
 #old assembly with primary only:
