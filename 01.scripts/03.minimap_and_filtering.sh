@@ -9,13 +9,26 @@
 # 4 - prepare the data for launching blast 
 
 #-------- input data -----------------------#
-species=$1 #the name of the species to be studied and for which genome data have been download in previous scripts 
+# Global variables
+if [ $# -ne 3  ]; then
+    echo "USAGE: $0 <species> <fastq> <type>"
+    echo -e "Expecting the three following arguments: \n 
+    	\t 1: <species> : a name corresponding to the genome of your study species\n
+	\t 2: <fastq>   : the fastq file of read to align\n
+	\t 3: <type>    : PB or ONT a string stating wether data are frome pacbio-hifi (pb) or ONT (ONT)\n"
+    exit 1
+else
+    species=$1
+    fastq=$2 #set of long reads to be mapped - ideally compressed.
+    type=$3  #either PB or ONT
+    echo "species name : ${species}"
+    echo -e "\n"
+    echo fastq file is $fastq 
+    echo data type is $type
+    echo -e "\n"
+fi
+
 contam="$species"_human_contam.fa
-
-fastq=$2 #set of long reads to be mapped - ideally compressed. 
-type=$3  #either PB or ONT
-
-
 
 #--------- step 1 -- run minimap ----------#
 if [[ $type = "PB" ]]
@@ -82,8 +95,7 @@ awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("
 
 #- Now run the assembler for the different cleaned output and look at the differences
 
-
-
+exit
 
 
 ##########################################################################################

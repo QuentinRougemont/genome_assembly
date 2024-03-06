@@ -1,10 +1,23 @@
-#puprose: 
+#purpose: 
 #script to download many genome with ncbi-genome-download tools on the ncbi database usign refseq categories
 #Author: QR
 #date 2022
 #update: 2024
 
 species=$1 #name of a focal species (major lineage) of interest to be download on ncbi
+#microscript to run flye 
+if [ $# -ne 1  ]; then
+    echo "USAGE: $0 input basename"
+    echo "Expecting a name corresponding to the genome of your study species"
+    exit 1
+else
+    species=$1
+    echo "genome name : ${species}"
+    echo -e "\n"
+    echo running flye on $species
+
+fi
+
 
 
 #use ncbi dowload to dowload the data: https://github.com/kblin/ncbi-genome-download
@@ -21,7 +34,7 @@ wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.28_G
 zcat GCA_000001405.28_GRCh38.p13_genomic.fna.gz |sed 's/^>/>human-/g' > human.fasta
 
 #repeat the same with $species genome and insert id:
-ncbi-genome-download --formats fasta $speices
+ncbi-genome-download --formats fasta $species
 
 zcat $species/*/*fna.gz  |sed "s/^>/>$species/g" > "species".fasta 
 

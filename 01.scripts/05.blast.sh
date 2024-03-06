@@ -1,5 +1,5 @@
 #!/bin/bash                                  
-#perform blast on all $species genome, all contaminant, human genome separately, then compare mappings
+#perform blast 
 
 # Global variables
 INPUT_FASTA=$1 #a set of  hifi or ONT raw read in fasta format 
