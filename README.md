@@ -3,9 +3,34 @@ generate genome assembly with hifi-only data
 
 Stuff I used with HiFi only, no HiC, trio, ONT, linked or short reads were available
 
+
+# To Do:
+
+add ONT pipeline
+
+add dorado basecalling for oNT
+
+add contamination checks 
+
+
 ## Dependancies
 
 ### tested on linux, depends on gcc, python, R, java. Conda is usefull to ease software installations  
+
+
+### quick and reproducible installation
+
+first clone this repository,
+
+then see the file `assembly_env.yml` to get everything in a minute through mamba (conda)  
+
+for busco check : `busco_env.yml` 
+
+for jellyfish run: `bash ./jellyfish.install.sh`  
+
+
+
+### manual installation:
 
 **hifiasm** software availalble [here](https://github.com/chhylp123/hifiasm)  
 
