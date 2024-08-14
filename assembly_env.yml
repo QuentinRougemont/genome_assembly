@@ -24,6 +24,11 @@ dependencies:
   - pilon=1.24
   - canu=2.2
   - pbtk=3.1.1
+  - r=4.4
+  - r-ggplot2=3.5.1
+  - r-data.table=1.15.4
+  - r-ggforce=0.4.2
+  - r-dplyr=1.1.4
 
 #  - medaka=1.11.3
 
