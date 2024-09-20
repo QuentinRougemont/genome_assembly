@@ -158,17 +158,31 @@ see details by running the following command:
 
 # More details
 
-## 1 - Assembly of HiFi data
+## 1 - Assembly of HiFi data (diploid case)
 
-run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obtain an assembly and assess quality  
+run the scripts with option like so: 
+`./FlowAssembly.sh -g path/to/raw_hifi/species.bam -s 400 -a hifiasm -d insecta_odb10 -T NO -p heliconius1 -p   2>&| tee logHeliconus1 `
 
-##	Step by Step guide :  
 
- * **1. look at kmer distribution, genome length, and heterozygosity with GenomeScope**
+##	What this does ? A Step by Step guide :  
+
+ * **1. Extract HiFi data
+
+    code : `01_extractHifi.sh`  
+
+    Will simply extract Q20 data and convert into fastq.gz from the raw bam
+
+    On the fly we compute GC% and sequence length to make a histogram of each (code : `01_scripts/Rscripts/plot_len_gc.R`) 
+
+    TO DO: insert example histogram here
+
+
+ * **2. look at kmer distribution, genome length, and heterozygosity with GenomeScope**
 	
 This step will help understand the data and optimize parameters for hifiasm assembly
 
-see  `01.scripts/01.jellyfish_and_genomescope.sh`  
+code  `01.scripts/04_jellyfish.sh`  
+
 
 here are some details:     
  
@@ -224,9 +238,17 @@ Here is an example graph:
 
 
  * **3. perform assembly on the cleaned RAW data**
-		simply use hifiasm. look at the [documentation](https://hifiasm.readthedocs.io/en/latest/index.html), [faq](https://hifiasm.readthedocs.io/en/latest/faq.html) and [github issues](https://github.com/chhylp123/hifiasm/issues) for optimisation as everything is well documented.  
-		see example of script here: `01.scripts/07.hifiasm.sh`
-  
+
+    code : `01_scripts/05_hifi_assembler.sh`
+
+    Different assembler can be used:
+        1 - hifiasm
+        2 - Canu
+        3 - Flye
+
+		In most cases I simply use hifiasm. look at the [documentation](https://hifiasm.readthedocs.io/en/latest/index.html), [faq](https://hifiasm.readthedocs.io/en/latest/faq.html) and [github issues](https://github.com/chhylp123/hifiasm/issues) for optimisation as everything is well documented.  
+		
+        3.1. Hifiasm  
 			I've especially explored the use of different -s and -o parameters to optimize assembly size but default parameters already produced almost what we expected.
    
 	*	-s parameter: decrease it to avoid missassembly, perform more purging and decrease assembly size 
@@ -234,23 +256,42 @@ Here is an example graph:
 	*	-D & -N can be increased to increased assembly contiguity.  
 		Explore a combination of different parameter to see how it change the results!
 
- * **4. generate fasta** 
+        3.2. Canu :
+            Use with default options  
+            TO DO:  genome size estimated by Jellyfish to be passed as an argument
+
+        3.3. Flye : 
+            Use with default options 
+            TO DO:  genome size estimated by Jellyfish to be passed as an argument
+
+ * **4. generate fasta** (Hifiasm only) 
+
 	Depending on your need you may want the primary assembly only, the two hap* approximately phased assembly, or anything else  
 
- * **5. look at quality.**  
-	Use bash, busco, quast, merqury, etc to assess assembly quality, NG50, N50, length of contig...
-	these scripts may be usefull:
-	```
-	sort_gfa_by_contig_length.sh
-	sort_gfa_by_rd.sh
-	get_total_length_of_gfa.sh
-	``` 
-	* **busco**
-	busco is very simple to run on a genomic fasta file:
+ * **5. map the raw reads back**
+
+    Code: `01_scripts/07_minimap.sh` 
+
+    Will simply create a bam file + depth file for plot
+    
+    Can be used to look at continuity, assess quality
+
+
+ * **6. look at quality.**  
+
+	Use bash, busco, compleasm, quast, craq to assess assembly quality, NG50, N50, length of contig...
+	* **busco + compleasm**
+
+	busco is very simple to run on a genomic fasta file 
+
+    This is automatically executed from within the code `01_scripts/05_hifi_assembler.sh`
+
+    command will be like so: 
 	```
 	busco -c8 -o output_busco -i your_fasta  -l lepidoptera_odb10 -m geno
 	```
 
+example on lepidoptera case:
 In my case the busco score looks not to bad:  
 
 ```sh
@@ -270,13 +311,24 @@ In my case the busco score looks not to bad:
 We will get back to that later.
 
 
+    **Note** :
+     Given that busco is very slow for large genome (>1G) I also use compleasm, a wrapper of miniprot, to assess genome completeness
+
 	
-* **merqury**  
+* **7. merqury**  
 
- I used merqury only to obtain QV scores as these are not from trios.  
-  It requires some additional tools [betools](https://bedtools.readthedocs.io/en/latest/content/installation.html) and [samtools](http://www.htslib.org/)   
+    code : `01_scripts/11_merryl.sh <genome_id> <reads> <genome_size>` 
+            To build merryl database
+              1: <genome_id>: a name for the genome  
+              2: <reads>: path to reads to buld db  
+              3: <genome_size> : optional: name of the assembler  
 
-simply follow github: https://github.com/marbl/merqury/wiki :
+    code : `01_scripts/12_merqury.sh <genome_id> <fasta> <assembler> ` 
+ 
+  
+  In the diploid case I used merqury only to obtain QV scores genome completness and K-mer plot as these are not from trios.  
+
+  The code in the script simply follows github: https://github.com/marbl/merqury/wiki :
 
 ```bash
 1 prepare meryl dbs fille
@@ -358,6 +410,17 @@ on each assembly separately
 * **6 compare to other existing genomes :** 
 		**dgenies** can be used for that purpose
   		**minimap** + pafr + SV detections methods
+
+
+
+* **8 - CRAQ **
+
+    Craq is another usefull to evalue genome completness and error, very straightforward to use.
+
+    code : `01_scripts/14_craq.sh <assembly> <SMS.bam> <NGS.bam>`
+    
+
+
 
 * **7 annotate TE with repeatmodeler**
 

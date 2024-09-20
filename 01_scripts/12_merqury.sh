@@ -24,7 +24,7 @@ set -o nounset                              # Treat unset variables as an error
 if [ $# -lt 2  ]; then
     echo "USAGE: $0 : <genome> <fasta> <assembler>"
     echo -e "Expecting at least 2 arguments : \n 
-      \t 1: <genome>: a name for the genomq\n
+      \t 1: <genome>: a name for the genome\n
       \t 2: <fasta>: path to fasta assembly\n
       \t 3: <assembler> : optional: name of the assembler\n"
     exit 1
