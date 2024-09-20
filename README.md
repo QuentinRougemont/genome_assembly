@@ -21,7 +21,18 @@ several quality checks: **QV**, **K-mer multicplicity**, genome-scope plot, **bu
 
 ### Tested on linux, 
 
-***mamba/conda***  is usefull to ease software installations  
+### Mamba
+
+If you want to avoid potential conflicting versions or do not have root access on your device, you can use **conda** or **mamba** to install dependencies.
+
+We recommend mamba for linux:
+
+```
+curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge-pypy3-Linux-x86_64.sh
+bash Miniforge-pypy3-Linux-x86_64.sh
+#note: see here for other verions of mamba: https://github.com/conda-forge/miniforge
+```
+
 
 # Full automated installation 
 
@@ -38,10 +49,12 @@ mamba env create assembly_env.yml
 #for busco:
 mamba env create busco_env.yml
 
-#and for non-conda dependencies:
+#and for non-conda dependencies
+in a fixed folder in your /home: 
 bash ./dependencies.sh
 ```
 
+**Note:** this will create a folder call "softs" to install non conda dependencies (i.e. Jellyfish, Compleasm, Dorado, CRAQ)
 
 
 ## Manual installation:
