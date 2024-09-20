@@ -160,15 +160,19 @@ see details by running the following command:
 
 ## 1 - Assembly of HiFi data (diploid case)
 
-run the scripts with option like so: 
+run the scripts with option like so:  
+ 
 `./FlowAssembly.sh -g path/to/raw_hifi/species.bam -s 400 -a hifiasm -d insecta_odb10 -T NO -p heliconius1 -p   2>&| tee logHeliconus1 `
+
+This will launch automatically a series of script as details below
 
 
 ##	What this does ? A Step by Step guide :  
 
  * **1. Extract HiFi data
 
-    code : `01_extractHifi.sh`  
+    code : `01_extractHifi.sh <INPUT.bam>`
+        where INPUT.bam is your input  
 
     Will simply extract Q20 data and convert into fastq.gz from the raw bam
 
@@ -181,7 +185,7 @@ run the scripts with option like so:
 	
 This step will help understand the data and optimize parameters for hifiasm assembly
 
-code  `01.scripts/04_jellyfish.sh`  
+code  `01.scripts/04_jellyfish.sh <input_file> <kmer_length (default = 21)> <ploidy (default = 1) `  
 
 
 here are some details:     
@@ -436,5 +440,36 @@ For step 7 and 8 see our example pipeline here:https://github.com/QuentinRougemo
 
 # 3.1 new chemistery 
 
+* **for nano-hq (no illumina needed):**
+
+run the scripts with option like so:  
+
+`./FlowAssembly.sh -g path/to/nano-hq -t nano-hq -s 40 -a flye -d basidiomycota_odb10 -T NO -p fungus1 -b miniprot | tee logFungus1 `
+
+This will launch automatically a series of script as details below
+
+
+##	What this does ? A Step by Step guide :  
+
+
+TO BE FILLED
+
+
 # 3.2 old chemistery
+
+
+**Assembling nano-raw (old chemistry + illumina):** 
+
+run the scripts with option like so:  
+
+``
+./FlowAssembly.sh -g path/to/nano_data_folder -t nano-raw -s 400 -a flye -d insecta_odb10 -T YES -p Species1 -b miniprot -i /path/to/illumina_folder 2>&1 |tee logSpecies1
+``
+
+This will launch automatically a series of script as details below
+
+
+##	What this does ? A Step by Step guide :  
+
+TO BE FILLED
 
