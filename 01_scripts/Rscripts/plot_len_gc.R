@@ -2,7 +2,7 @@
 argv <- commandArgs(T)
  
 a <- read.table(argv[1])
-
+dir <- dirname(argv[1])
 
 means <- data.frame(t(colMeans(a[,c(2,4)])))
 colnames(means) <- c("meanlen","meanGC")
@@ -11,6 +11,10 @@ a <- a[,-c(1,3)]
 
 colnames(a)<-c("len","GC")
 
+if("ggplot2" %in% rownames(installed.packages()) == FALSE)
+{install.packages("ggplot2", repos="https://cloud.r-project.org") }
+if("cowplot" %in% rownames(installed.packages()) == FALSE)
+{install.packages("cowplot", repos="https://cloud.r-project.org") }
 library(ggplot2)
 library(cowplot)
 
@@ -30,7 +34,8 @@ p2 <- ggplot(a, aes(x = GC, color = "a") ) + geom_histogram(fill = "white")  +
    scale_color_brewer(palette="Spectral") + theme(legend.position="none")
 
 
-pdf(file = "hist.len_GC.pdf", 10,8)
+pdf(file = paste0(dir, "hist.len_GC.pdf"), 10,8)
 plot_grid(p1,p2)
 dev.off()
 
+#add a check in case this fail 

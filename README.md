@@ -1,14 +1,13 @@
 # genome_assembly
-generate genome assembly with hifi-only data  
+generate genome assembly with either: 
+    * hifi-only data 
 
-Stuff I used with HiFi only, no HiC, trio, ONT, linked or short reads were available
+    * ONT only (Q20)
+
+    * ONT + illumina 
 
 
 # To Do:
-
-add ONT pipeline
-
-add dorado basecalling for oNT
 
 add contamination checks 
 
@@ -20,7 +19,11 @@ add contamination checks
 
 ### quick and reproducible installation
 
-first clone this repository,
+first clone this repository:
+
+```sh
+git clone https://github.com/QuentinRougemont/genome_assembly/ 
+```
 
 then see the file `assembly_env.yml` to get everything in a minute through mamba (conda)  
 
@@ -32,19 +35,19 @@ for jellyfish run: `bash ./jellyfish.install.sh`
 
 ### manual installation:
 
-**hifiasm** software availalble [here](https://github.com/chhylp123/hifiasm)  
+**hifiasm** [here](https://github.com/chhylp123/hifiasm)  
 
-**minimap** software available [here](https://github.com/lh3/minimap2)  
+**minimap** [here](https://github.com/lh3/minimap2)  
 
-**jellyfish** software available [here](http://www.genome.umd.edu/jellyfish.html#Release)  
+**jellyfish** [here](http://www.genome.umd.edu/jellyfish.html#Release)  
 
-**genomescope** tools available [here for the online version](http://qb.cshl.edu/genomescope/info.php) and [here for running it from the command-line;](https://github.com/schatzlab/genomescope)  
+**genomescope** [here for the online version](http://qb.cshl.edu/genomescope/info.php) and [here for running it from the command-line;](https://github.com/schatzlab/genomescope)  
 
-**ncbi-genome-download** software available [here](https://github.com/kblin/ncbi-genome-download)  
+**ncbi-genome-download** [here](https://github.com/kblin/ncbi-genome-download)  
 
-**ncbi blast** available [here](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)  
+**ncbi blast** [here](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)  
 
-**dgenies** software available [here](http://dgenies.toulouse.inra.fr/install)  
+**dgenies** [here](http://dgenies.toulouse.inra.fr/install)  
 
 **busco** [software](https://gitlab.com/ezlab/busco/-/releases#5.2.1) also available from [conda](https://anaconda.org/bioconda/busco)
 

@@ -1,0 +1,51 @@
+#!/bin/bash
+#===============================================================================
+#
+#          FILE: 04_jellyfishh
+# 
+#         USAGE: ./04_jellyfish $input
+# 
+#   DESCRIPTION: nano script to run jellyfish and genome scope  
+# 
+#       OPTIONS: only standard options are used here
+#  REQUIREMENTS: HiFI or nano-hq or illumina only
+#          BUGS: ---
+#         NOTES: ---
+#        AUTHOR: Q. Rougemont 
+#  ORGANIZATION: 
+#       CREATED: 07/08/2024 11:54:40
+#      REVISION:  ---
+#===============================================================================
+
+set -o nounset                              # Treat unset variables as an error
+
+#===============================================================================
+#       External variable 
+input=$1        #fastq.gz file read (HiFi on nano-hq)
+kmer_length=21  #to be passed as argument
+ploidy=1        #to be passed as argument
+
+#===============================================================================
+
+# - jellyfish 
+outdir=04_jellyfish
+mkdir $outdir 2>/dev/null
+
+if [ ! -s "$outdir"/reads.histo ] 
+then
+   #run jellyfish 
+    jellyfish count -C -m 21 -s 1000000000 -t 10 <(zcat "$input") -o "$outdir"/reads.jf
+
+    if ! jellyfish histo -t 10 "$outdir"/reads.jf > "$outdir"/reads.histo ; then 
+	    echo "jellyfish failed"
+	    exit 1
+    fi
+fi
+#===============================================================================
+
+# - genomescope2:
+if ! genomescope2 -i "$outdir"/reads.histo  -k "$kmer_length" -p "$ploidy" -o "$outdir" ; 
+then
+	echo "genomescope failed"
+	exit 1
+fi
