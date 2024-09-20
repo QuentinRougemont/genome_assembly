@@ -1,23 +1,30 @@
-# genome_assembly
-generate genome assembly with either: 
-    * hifi-only data 
+# genome_assembly workflow  
 
-    * ONT only (Q20)
 
-    * ONT + illumina 
+## Purpose: 
 
+Generate **genome assembly** +  **polishing** + 
+several quality checks: **QV**, **K-mer multicplicity**, genome-scope plot, **busco/compleasm**, **CRAQ** evaluation  and plots with either : 
+
+ * HiFi-only data 
+
+ * ONT only (Q20) 
+
+ * ONT + illumina 
+ 
 
 # To Do:
 
-add contamination checks 
+* **insérer des genome scope et QV kmer pour haploid* 
+* add contamination checks 
 
 
-## Dependancies
 
-### tested on linux, depends on gcc, python, R, java. Conda is usefull to ease software installations  
+### Tested on linux, 
 
+***mamba/conda***  is usefull to ease software installations  
 
-### quick and reproducible installation
+# Full automated installation 
 
 first clone this repository:
 
@@ -25,42 +32,121 @@ first clone this repository:
 git clone https://github.com/QuentinRougemont/genome_assembly/ 
 ```
 
-then see the file `assembly_env.yml` to get everything in a minute through mamba (conda)  
+then run the following:
+```sh
+mamba env create assembly_env.yml  
 
-for busco check : `busco_env.yml` 
+#for busco:
+mamba env create busco_env.yml
 
-for jellyfish run: `bash ./jellyfish.install.sh`  
-
-
-
-### manual installation:
-
-**hifiasm** [here](https://github.com/chhylp123/hifiasm)  
-
-**minimap** [here](https://github.com/lh3/minimap2)  
-
-**jellyfish** [here](http://www.genome.umd.edu/jellyfish.html#Release)  
-
-**genomescope** [here for the online version](http://qb.cshl.edu/genomescope/info.php) and [here for running it from the command-line;](https://github.com/schatzlab/genomescope)  
-
-**ncbi-genome-download** [here](https://github.com/kblin/ncbi-genome-download)  
-
-**ncbi blast** [here](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)  
-
-**dgenies** [here](http://dgenies.toulouse.inra.fr/install)  
-
-**busco** [software](https://gitlab.com/ezlab/busco/-/releases#5.2.1) also available from [conda](https://anaconda.org/bioconda/busco)
-
-**quast** [software](https://sourceforge.net/projects/quast/)
-
-**mercury**[software](https://github.com/marbl/merqury)
-
-**bedtools**[software](https://bedtools.readthedocs.io/en/latest/index.html) 
+#and for non-conda dependencies:
+bash ./dependencies.sh
+```
 
 
-# Assembly of HiFi data
 
-Note: For ONT data see code [in this repo](https://github.com/QuentinRougemont/ONT_assembly)
+## Manual installation:
+
+if you don't want to use conda, then install all of this by hand according to your need:
+
+* [pbtk](https://github.com/pacificbiosciences/pbtk/)
+
+* [hifiasm](https://github.com/chhylp123/hifiasm)  
+
+* [flye](https://github.com/mikolmogorov/Flye/blob/flye/docs/INSTALL.md)
+
+* [minimap2](https://github.com/lh3/minimap2)  
+
+* [jellyfish](http://www.genome.umd.edu/jellyfish.html#Release)  
+
+* [genomescope](https://github.com/schatzlab/genomescope)  
+
+* [busco](https://gitlab.com/ezlab/busco/-/releases#5.7.1) 
+
+* [quast](https://sourceforge.net/projects/quast/)
+
+* [mercury](https://github.com/marbl/merqury)
+
+* [craq](https://github.com/JiaoLaboratory/CRAQ)
+
+
+Contamination checks (optional): 
+* [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download)  
+
+* [ncbi blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)  
+
+* [bedtools](https://bedtools.readthedocs.io/en/latest/index.html) 
+
+ONT-specific dependencies: 
+* [dorado]()
+* [chooper](https://github.com/wdecoster/chopper)
+* [medaka]()
+
+For short read corrections of ONT:
+* [parallel](https://www.gnu.org/software/parallel/)
+
+* [fastp](https://github.com/OpenGene/fastp)
+
+* [bwa](https://sourceforge.net/projects/bio-bwa/files/)
+
+* [samtools](http://www.htslib.org/)
+
+* [fastp](https://github.com/OpenGene/fastp)
+
+* [pilon](https://github.com/broadinstitute/pilon)
+
+Visualisation (optional)
+* [dgenies](http://dgenies.toulouse.inra.fr/install)  
+* [R](https://www.r-project.org/)
+
+
+# Quick start: 
+
+after successfull installation provide your input data as arguments to the script `./assembly_flow.sh` 
+option are as follows: 
+
+
+see details by running the following command: 
+```sh
+./assembly_flow.sh --help
+
+#options are as follows:
+	-g <genome>: path to genome file either as fastq.gz/bam/pod5
+	-t <type> : data type: either hifi, "nano-raw", or "nano-hq"
+	-a <assembler> : name of the assembler to be used either <hifiasm>,<canu>,<flye>
+	-d <datatype> : database for busco analyses can be obtained through busco --list dataset)
+	(optional:)
+	-b <buscotype> (default : miniprot, else: miniprot, metaeuk, augustus)
+	(ONT only parameters:) 
+	-p <species_id/strain_id/whatever_id> : any species id for the genome
+	-T <Trimm> :   wether to trimm ONT data or not
+	-i <illumina> : path to illumina data folder for polishing
+	-N <NCPU> : number of CPU to be used
+	
+```
+
+# Concrete Example
+
+**Assembling nano-raw (old chemistry + illumina):** 
+
+``
+./FlowAssembly.sh -g path/to/nano_data_folder -t nano-raw -s 400 -a flye -d insecta_odb10 -T YES -p Species1 -b miniprot -i /path/to/illumina_folder 2>&1 |tee logSpecies1
+``
+
+* **for nano-hq (no illumina needed):**
+
+`./FlowAssembly.sh -g path/to/nano-hq -t nano-hq -s 40 -a flye -d basidiomycota_odb10 -T NO -p fungus1 -b miniprot | tee logFungus1 `
+
+* **for HiFi:** 
+
+`./FlowAssembly.sh -g path/to/raw_hifi/species.bam -s 400 -a hifiasm -d insecta_odb10 -T NO -p heliconius1 -p   2>&| tee logHeliconus1 `
+
+#
+
+
+# More details
+
+## 1 - Assembly of HiFi data
 
 run the scripts located in 01-scripts sequentially from scripts 01 to 11 to obtain an assembly and assess quality  
 
@@ -248,16 +334,16 @@ bin/purge_dups -2 -T cutoffs -c PB.base.cov $ref.split.self.paf.gz > dups.bed 2>
 
 bin/get_seqs -e dups.bed $ref
 
-```	
+```
+
 
 this was done for each parental assembly and the primary reference.
 
 * **then run busco again**
 
-on each assembly
+on each assembly separately 
 
-
-* **6 compare to other genome :** 
+* **6 compare to other existing genomes :** 
 		**dgenies** can be used for that purpose
   		**minimap** + pafr + SV detections methods
 
@@ -266,3 +352,14 @@ on each assembly
 * **8 perform prediction of gene with RNAseq**
 
 For step 7 and 8 see our example pipeline here:https://github.com/QuentinRougemont/genome_annotation
+
+# 2 - Hifi - Haploid assembly
+
+
+
+# 3 - ONT assembly 
+
+# 3.1 new chemistery 
+
+# 3.2 old chemistery
+
