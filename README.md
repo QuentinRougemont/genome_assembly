@@ -15,7 +15,6 @@ several quality checks: **QV**, **K-mer multicplicity**, genome-scope plot, **bu
 
 # To Do:
 
-* **insérer des genome scope et QV kmer pour haploid* 
 * add contamination checks 
 
 
@@ -108,7 +107,7 @@ option are as follows:
 
 see details by running the following command: 
 ```sh
-./assembly_flow.sh --help
+./FlowAssembly.sh --help
 
 #options are as follows:
 	-g <genome>: path to genome file either as fastq.gz/bam/pod5
