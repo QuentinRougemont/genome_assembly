@@ -475,10 +475,10 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
             echo "Pilon Done"
             echo -e "\n-------------------------------"
         fi
+        assembly=09_pilon_"${BASE}"_"${assembler}"/pilon.fasta
 
     fi
 
-    assembly=09_pilon_"${BASE}"_"${assembler}"/pilon.fasta
     #run awk to get length 
     awk '/^>/ {if (seqlen){print seqlen}
       printf(">%s\t",substr($0,2)) ;seqlen=0;next;} 
@@ -490,11 +490,19 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     echo -e "\n-------------------------------"
     echo -e "\trunning merryl   " 
     echo -e "\n-------------------------------"
-     
+    if [[ $total_len == 0  ]] ; 
+    then
+        echo "error total length is 0" 
+        echo "please check your data"
+        exit 1
+    fi
+
    if [[ "${type,,}" == "nano-hq" ]]
    then
-       READS="TODEFINE"
-       BASE="TODEFINE"
+       echo "data are nano-hq"
+       echo "setting up path to file for meryl"
+       READS="02_trimmed_ONT/*gz"
+       BASE="$BASE"
    else
        echo "assuming reads are nano-raw"
        READS="$illumina"/*.gz
