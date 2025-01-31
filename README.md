@@ -17,6 +17,7 @@ several quality checks: **QV**, **K-mer multicplicity**, genome-scope plot, **bu
 
 * add contamination checks 
 
+* skip dorado if data already processed (make it optional) 
 
 
 ### Tested on linux, 
@@ -44,10 +45,10 @@ git clone https://github.com/QuentinRougemont/genome_assembly/
 
 then run the following:
 ```sh
-mamba env create assembly_env.yml  
+mamba env create -f assembly_env.yml  
 
 #for busco:
-mamba env create busco_env.yml
+mamba env create -f busco_env.yml
 
 #and for non-conda dependencies
 in a fixed folder in your /home: 
