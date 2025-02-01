@@ -79,12 +79,15 @@ then
             gzip > "$OUTFOLDER"/"$BASE".dp.gz
     else
         echo "assuming reads are ONT"
-        minimap2 -ax map-ont -t "$NCPU" "$ASSEMBLY" "$READS" > "$OUTFOLDER"/"$SPECIES".sam
+        echo -e "
+        minimap2 -ax map-ont -t "$NCPU" "$ASSEMBLY" "$READS" > "$OUTFOLDER"/"$SPECIES".sam " >  runme
+        bash runme 
         samtools view -Sb "$OUTFOLDER"/"$SPECIES".sam \
             | samtools sort --threads "$NCPU" > "$OUTFOLDER"/"$SPECIES".bam
     
         samtools depth  "$OUTFOLDER"/"$SPECIES".bam |\
             gzip > "$OUTFOLDER"/"$SPECIES".dp.gz
+        rm runme
     fi
 else
     echo "minimap output already here"
