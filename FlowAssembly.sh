@@ -537,7 +537,10 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     echo -e "\tmapping long reads to assembly" 
     echo -e "\n-------------------------------"
 
-    ONTREADS="02_trimmed_ONT/input.trimmed.fastq.gz"
+    
+    #ONTREADS="02_trimmed_ONT/input.trimmed.fastq.gz"
+    ONTREADS="02_trimmed_ONT/*.fastq.gz"
+
     OUTFOLDER=07_minimap_"$assembler"
     SPECIES=$species
     NCPU=10
@@ -555,51 +558,54 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
 
     #run craq
     #for HiFi only no short reads are availabe:
-    echo -e "\n-------------------------------"
-    echo -e "\trunning craq " 
-    echo -e "\n-------------------------------"
-
-    #first runn bwa-mem2 on pilon assembly:
-    #variable for bwa-mem
-    INPUTGENOME="$assembly"
-    ILLUMINATRIMMED="03_TrimmedIllumina/${BASE}"	
-    OUTFOLDER=10_aligned_after_pilon_"$BASE"_"$assembler"
-    mkdir "$OUTFOLDER" 2>/dev/null
-    chmod +x ./01_scripts/10_bwamem2.sh
-    if ! bash  01_scripts/10_bwamem2.sh "${INPUTGENOME}" \
-        "${ILLUMINATRIMMED}" \
-        "${OUTFOLDER}" 
+    if [[ "${type,,}" == "nano-raw" ]]
     then
-        echo "erreur bwa-mem failed"
-        exit 1
-    else
+    
         echo -e "\n-------------------------------"
-        echo "BWA mem on pilon done"
+        echo -e "\trunning craq " 
         echo -e "\n-------------------------------"
+    
+        #first runn bwa-mem2 on pilon assembly:
+        #variable for bwa-mem
+        INPUTGENOME="$assembly"
+        ILLUMINATRIMMED="03_TrimmedIllumina/${BASE}"	
+        OUTFOLDER=10_aligned_after_pilon_"$BASE"_"$assembler"
+        mkdir "$OUTFOLDER" 2>/dev/null
+        chmod +x ./01_scripts/10_bwamem2.sh
+        if ! bash  01_scripts/10_bwamem2.sh "${INPUTGENOME}" \
+            "${ILLUMINATRIMMED}" \
+            "${OUTFOLDER}" 
+        then
+            echo "erreur bwa-mem failed"
+            exit 1
+        else
+            echo -e "\n-------------------------------"
+            echo "BWA mem on pilon done"
+            echo -e "\n-------------------------------"
+        fi
+       
+        INFOLDER=10_aligned_after_pilon_"$BASE"_"$assembler"
+        NGSBAM="$INFOLDER"/finalmerged.bam
+    
+        echo -e "\n-------------------------------"
+        echo "merging file"
+        samtools merge "$NGSBAM" "$INFOLDER"/*sorted.bam
+        SMSBAM=07_minimap_"$assembler"/"$SPECIES".bam
+        echo "indexing..."
+        samtools index "$SMSBAM"
+        echo "indexing..."
+        samtools index "$NGSBAM"
+    
+        chmod +x 01_scripts/14_craq.sh
+        if ! ./01_scripts/14_craq.sh "$assembly" "$SMSBAM" "$NGSBAM"
+        then
+            echo error craq failed !!
+            exit 1
+        else
+            echo -e "\n-------------------------------"
+            echo -e "\t craq done! " 
+            echo -e "\n-------------------------------"
+        fi 
     fi
-   
-    INFOLDER=10_aligned_after_pilon_"$BASE"_"$assembler"
-    NGSBAM="$INFOLDER"/finalmerged.bam
-
-    echo -e "\n-------------------------------"
-    echo "merging file"
-    samtools merge "$NGSBAM" "$INFOLDER"/*sorted.bam
-    SMSBAM=07_minimap_"$assembler"/"$SPECIES".bam
-    echo "indexing..."
-    samtools index "$SMSBAM"
-    echo "indexing..."
-    samtools index "$NGSBAM"
-
-    chmod +x 01_scripts/14_craq.sh
-    if ! ./01_scripts/14_craq.sh "$assembly" "$SMSBAM" "$NGSBAM"
-    then
-        echo error craq failed !!
-        exit 1
-    else
-        echo -e "\n-------------------------------"
-        echo -e "\t craq done! " 
-        echo -e "\n-------------------------------"
-    fi 
-
     echo "Assemblage DONE"
 fi
