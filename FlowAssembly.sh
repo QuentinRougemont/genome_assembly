@@ -481,7 +481,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
 
     #run awk to get length 
     awk '/^>/ {if (seqlen){print seqlen}
-      printf(">%s\t",substr($0,2)) ;seqlen=0;next;} 
+      printf(">%s\t",substr($1,2)) ;seqlen=0;next;} 
       { seqlen += length($0)}END{print seqlen}' "$assembly"  > "$BASE"_length.txt  
     
     total_len=$(awk '{sum+=$2}END{print sum}' "$BASE"_length.txt ) 
