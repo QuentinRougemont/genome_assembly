@@ -130,7 +130,7 @@ OUTFOLDER="${OUTFOLDER}"/quast
 echo -e "\n-------------------------------"
 echo -e "\trunning quast                  " 
 echo -e "\n-------------------------------"
-if [ ! -s "${OUTFOLDER}"/quast/quast/report.pdf ]
+if [ ! -s "${OUTFOLDER}"/quast/report.pdf ]
 then
     quast.py --threads 4 --eukaryote -o "${OUTFOLDER}" "$assembly" 
 else

@@ -44,8 +44,14 @@ fi
 #===============================================================================
 
 # - genomescope2:
-if ! genomescope2 -i "$outdir"/reads.histo  -k "$kmer_length" -p "$ploidy" -o "$outdir" ; 
+if [ ! -s "$outdir"/linear_plot.png ] 
 then
-	echo "genomescope failed"
-	exit 1
+    if ! genomescope2 -i "$outdir"/reads.histo  -k "$kmer_length" -p "$ploidy" -o "$outdir" ; 
+    then
+    	echo "genomescope failed"
+    	exit 1
+    fi
+else
+    echo "genomescope2 output already exist"
 fi
+
