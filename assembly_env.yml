@@ -1,9 +1,11 @@
 #mamba env create -p path/to/env/ -f assembly_env.yml 
 name: assembly_env
 channels:
+  - defaults
   - anaconda
   - conda-forge
   - bioconda
+channel_priority: true
 dependencies:
   - wget=1.21.4
   - make=4.3
