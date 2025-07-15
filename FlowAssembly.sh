@@ -426,7 +426,14 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
 
             echo -e "\n-------------------------------"
         fi
-        
+
+        if [ -z ${illumina+x} ] ; then
+                echo "no illumina data provided\npolishing cannot be performed"
+                echo -e "stopping analyses\n---------------------"
+        else
+                echo "illumina data provided - will polish with pilon"
+        fi
+
         OUTFOLDER=03_TrimmedIllumina/"${BASE}" 
         chmod +x ./01_scripts/09_fastp.sh
         if ! bash  01_scripts/09_fastp.sh "${illumina}" "${OUTFOLDER}" 

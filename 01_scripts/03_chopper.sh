@@ -72,30 +72,27 @@ fi
 if [ "$filesize" -lt "$minsize" ]
 then
     echo "running chopper"
+    for fastq in "$INFOLDER"/*f*q.gz 
+    do
+       name=$(basename "${fastq}" )
+       echo "$name"  
+       if file --mime-type "$fastq" | grep -q gzip$; then
+           echo processing "$name"   ; 
+           zcat "$fastq" | \
+           chopper -q "$QUAL" -l "$MINLEN" --headcrop "$HEADCROP" |  \
+                gzip >> "$OUTFOLDER"/input.trimmed.fastq.gz ;
+                #gzip > "$OUTFOLDER"/"${name%.fastq.gz}".trimmed.fastq.gz ;
+       else
+           echo processing "$name"   ; 
+           chopper -q "$QUAL" -l "$MINLEN" --headcrop "$HEADCROP" "$fastq" |  \
+                 gzip >> "$OUTFOLDER"/input.trimmed.fastq.gz ; 
+          
+       fi
+    done
 else
     echo "output file $OUTFOLDER/input.trimmed.fastq.gz already exist"
-    echo "please check the file"
-    exit 1
+    echo "this file will be use for genome assembly"
+    #exit 1
 fi
 
 
-for fastq in "$INFOLDER"/*f*q.gz 
-do
-   name=$(basename "${fastq}" )
-   echo "$name"  
-   if file --mime-type "$fastq" | grep -q gzip$; then
-       echo processing "$name"   ; 
-       zcat "$fastq" | \
-       chopper -q "$QUAL" -l "$MINLEN" --headcrop "$HEADCROP" |  \
-            gzip >> "$OUTFOLDER"/input.trimmed.fastq.gz ;
-            #gzip > "$OUTFOLDER"/"${name%.fastq.gz}".trimmed.fastq.gz ;
-   else
-       echo processing "$name"   ; 
-       chopper -q "$QUAL" -l "$MINLEN" --headcrop "$HEADCROP" "$fastq" |  \
-             gzip >> "$OUTFOLDER"/input.trimmed.fastq.gz ; 
-      
-   fi
-done
-#else
-#    echo "chopper already done"
-#fi
