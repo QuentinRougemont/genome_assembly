@@ -1,0 +1,7 @@
+#mamba env create -f medaka210
+#conda activate medaka210
+name: medaka210
+channels:
+  - bioconda
+dependencies:
+  - medaka=2.1.0
