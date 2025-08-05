@@ -52,7 +52,7 @@ dorado basecaller "$MODEL" "$INPUT" > 02_raw/nanohq.calls.bam
 #kitname="SQK-NBD114-24"
 #dorado basecaller --kit-name "kitname"  "$MODEL" pod5 > 02_raw/"$kitname".bam
 
-samtools fastq 02_raw/nanohq.calls.bam |gzip >> 01_raw/"$OUTPUTNAME".fastq.gz
+samtools fastq 02_raw/nanohq.calls.bam |gzip >> 02_raw/"$OUTPUTNAME".fastq.gz
 
 #===============================================================================
 #TO DO eventually: implement herro for read correction

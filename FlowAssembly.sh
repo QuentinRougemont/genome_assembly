@@ -23,9 +23,9 @@
 # All associated scripts are located in the folder: 01_scripts
 
 # ./FlowAssembly.sh -g <genome> -t <type> -s <genomesize(mbp)> -a <assembler> -d <busco_database> -T <trimm_ONT_(YES/NO)> #optional: -b <Busco_type> -N <NCPU>
-# Exemple ONT  : ./FlowAssembly.sh   -g pod5folder/ -p myspecies -t nano-hq -s 30 -a flye -d basidiomycota_odb10 -T YES -b metaeuk -N 20 -m "model"
-# Exemple HiFi : ./FlowAssembly.sh -g hifi.bam     -t hifi        -s 30 -a hifiasm -d basidiomycota_odb10 -T NO -b miniprot -N 10
-# Exemple ONT :  ./FlowAssembly.sh -g ont.fq.gz    -t nano-raw    -s 30 -a flye    -d basidiomycota_odb10 -T YES -b miniprot -N 10 -i path/to/illumina_folder/
+# Exemple ONT  : ./FlowAssembly.sh -g pod5folder/ -p myspecies -t nano-hq -s 30 -a flye -d basidiomycota -T YES -b metaeuk -N 20 -m "model"
+# Exemple HiFi : ./FlowAssembly.sh -g hifi.bam   -t hifi        -s 30 -a hifiasm -d basidiomycota -T NO -b miniprot -N 10
+# Exemple ONT :  ./FlowAssembly.sh -g ont.fq.gz  -t nano-raw    -s 30 -a flye    -d basidiomycota -T YES -b miniprot -N 10 -i path/to/illumina_folder/
 
 eval "$(conda shell.bash hook)"
 conda activate assembly_env
@@ -56,6 +56,7 @@ Help()
    echo " -T|--trimm: <trimm>: YES/NO for trimming raw ONT reads with chopper"
    echo " -i|--illumina: <illumina_path> : path to folder containing illumina file for polishing raw-ont data"
    echo "ONT HQ (nano-hq) specific option" :
+   echo " -c|--call: <YES/NO> a string: if <YES> performs dorado basecalling from pod5, if <NO> run from existing fastq.gz" 
    echo " -p|--species <species id> to be used after basecalling"
    echo " -m|--model <model> for Dorado basecalling" 
    echo "other optional variable:"
@@ -88,6 +89,8 @@ while [ $# -gt 0 ] ; do
         #optional for ONT (nano-hq):
     -p  | --species ) species="$2"  ;
         echo -e "species name for ont assembly will be ***${species}*** \n" >&2;;
+    -c  | --call ) call="$2"  ;
+        echo -e "dorado basecalling will be performed ***${call}*** \n" >&2;;
     -m  | --model ) model="$2" ;
         echo -e "model for dorado basecalling will be ***${model}*** \n" >&2;;
         #optional for all : 
@@ -283,13 +286,10 @@ echo "Run scripts for Hifi type"
     SMSBAM=07_minimap_"$assembler"/"$BASE".bam
     ./01_scripts/14.craq.sh "$assembly" "$SMSBAM" 
 
-
-
     ##TO DO: if ploidy == 2  run hapdup if assembler is flye 
     ##Run merqury on hap1/hap2 of hifiasm
 
     #run purge dup if necessary
-
 
 # Run scripts for ONT type
 elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
@@ -301,51 +301,59 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     fi
 
     echo "Processing ONT type"
-
-    if [[ "${type,,}" == "nano-hq" ]]; then
+    run_basecalling="$call" #YES or NO
+    if [[ "${type,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "YES" ]] ; then
         echo "data are nano-hq" 
         echo "will perform basecalling with dorado"
         
         INPUT="$genome"                 #check if this is a pod5 folder
         OUTPUTNAME="$species"   #
-
+        #check that pod5 exists:
         if [[ -z "$model" ]]
         then
             model="dna_r10.4.1_e8.2_400bps_sup@v4.3.0"
         fi
 
         chmod +x ./01_scripts/00_dorado.sh
-        bash 01_scripts/00_dorado.sh "$INPUT" "$OUTPUTNAME" $model 
+        if [ -n "$(ls -A "$INPUT"/*pod5 )" ] ; 
+        then
+            bash 01_scripts/00_dorado.sh "$INPUT" "$OUTPUTNAME" $model 
+        else
+            echo "error no pod5 in folder"
+            echo "please check your data"
+            exit 1
+        fi
 
         echo "runing jellyfish and genomescope now"
         kmer_length=21
+        READS="02_raw/$OUTPUTNAME.fastq.gz"
         chmod +x ./01_scripts/04_jellyfish
-        ./01_scripts/04_jellyfish "${genome}" "${kmer_length}"
+        ./01_scripts/04_jellyfish "${READS}" "${kmer_length}"
 
 
-        #declare READS here:
-        READS="TODO"
-
-    elif [[ "$trimm" = "YES" ]] ; then 
-        echo -e "\n-------------------------------"
-        echo "running chopper"
-        echo "assuming nano-raw"
-        echo -e "\n-------------------------------"
-        
-        OUTFOLDER=02_trimmed_ONT
-        mkdir "$OUTFOLDER" 2>/dev/null
-        INFOLDER="$genome"
-        chmod +x ./01_scripts/03_chopper.sh 
-        QUAL=10
-        HEADCROP=10
-        MINLEN=1000
-        if ! bash 01_scripts/03_chopper.sh "${INFOLDER}" "${OUTFOLDER}" "$QUAL" "$HEADCROP" "$MINLEN" ; then
-            echo "chopper failed"
-            exit 1
-        else
-            echo "Chopper Done"
-        fi
-        READS="02_trimmed_ONT/*gz"
+    elif [[ "${type,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "NO" ]] ; then
+	    
+        if [[ "$trimm" = "YES" ]] ; then 
+            echo -e "\n-------------------------------"
+            echo "running chopper"
+            echo "assuming nano-raw"
+            echo -e "\n-------------------------------"
+            
+            OUTFOLDER=02_trimmed_ONT
+            mkdir "$OUTFOLDER" 2>/dev/null
+            INFOLDER="$genome"
+            chmod +x ./01_scripts/03_chopper.sh 
+            QUAL=10
+            HEADCROP=10
+            MINLEN=1000
+            if ! bash 01_scripts/03_chopper.sh "${INFOLDER}" "${OUTFOLDER}" "$QUAL" "$HEADCROP" "$MINLEN" ; then
+                echo "chopper failed"
+                exit 1
+            else
+                echo "Chopper Done"
+            fi
+            READS="02_trimmed_ONT/*gz"
+	    fi
     fi
  
     chmod +x ./01_scripts/06_ONT_assembler.sh
@@ -357,7 +365,6 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     then
         genomesize=30 #size must be in megabase here
     fi
-    
     
     # Test if output directory exist:
     OUTFOLDER=05_"${species}"_"${assembler}" 
