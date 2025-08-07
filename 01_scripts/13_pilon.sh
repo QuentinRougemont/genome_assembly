@@ -76,6 +76,7 @@ else
 fi
 
 #===============================================================================
+NCPU=12
 compleasm.py download "${database}"
 if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
 then
@@ -91,10 +92,11 @@ else
 fi
 
 #===============================================================================
+eval "$(conda shell.bash hook)"
+conda activate busco6.0.0
 # make command for busco gene finder:
 genefinder=$(echo "--""$buscotype" )
 
-NCPU=12
 # Running BUSCO on the polished genome assembly
 for file in "${OUTFOLDER}"/BUSCO_pilon.fasta/short*txt  
 do

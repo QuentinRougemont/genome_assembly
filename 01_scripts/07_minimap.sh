@@ -88,6 +88,7 @@ then
         samtools depth  "$OUTFOLDER"/"$SPECIES".bam |\
             gzip > "$OUTFOLDER"/"$SPECIES".dp.gz
         rm runme
+        Rscript 01_scripts/plot_depth.R "$OUTFOLDER"/"$SPECIES".dp.gz
     fi
 else
     echo "minimap output already here"

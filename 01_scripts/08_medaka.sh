@@ -41,11 +41,10 @@ else
     NCPU=$6
 fi
 #===============================================================================
-
 # Test if user specified a number of CPUs, if not, default to 8
 if [[ -z "$NCPU" ]]
 then
-    NCPU=8
+    NCPU=12
 fi
 
 #===============================================================================
@@ -71,6 +70,22 @@ else
 fi
 
 #===============================================================================
+compleasm.py download "${database}"
+if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
+then
+    #run
+    compleasm.py run -t$NCPU \
+            -l "${database}" \
+            -a "${OUTFOLDER}"/consensus.fasta \
+            -o "${OUTFOLDER}"/compleasm
+else
+    echo -e "\n-------------------------------"
+    echo "compleasm already ok "
+    echo -e "\n-------------------------------"
+fi
+#===============================================================================
+eval "$(conda shell.bash hook)"
+conda activate busco6.0.0
 
 # make command for busco gene finder:
 genefinder=$(echo "--""$buscotype" )
@@ -92,19 +107,3 @@ do
     fi
 done
 
-#===============================================================================
-compleasm.py download "${database}"
-if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
-then
-    #run
-    compleasm.py run -t$NCPU \
-            -l "${database}" \
-            -a "${OUTFOLDER}"/consensus.fasta \
-            -o "${OUTFOLDER}"/compleasm
-else
-    echo -e "\n-------------------------------"
-    echo "compleasm already ok "
-    echo -e "\n-------------------------------"
-fi
-
-#===============================================================================

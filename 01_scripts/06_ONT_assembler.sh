@@ -41,16 +41,7 @@ INFOLDER=02_trimmed_ONT
 # Test if user specified a number of CPUs, if not, default to 8
 if [[ -z "$NCPU" ]]
 then
-    NCPU=8
-fi
-
-#BASE=$(basename "${genome%%.*}" )
-#extension="${genome##*.}"
-
-# Test if user specified a number of CPUs, if not, default to 8
-if [[ -z "$NCPU" ]]
-then
-    NCPU=40
+    NCPU=20
 fi
 
 if [[ -f "$INFOLDER/*fq.gz" ]] ; then
@@ -132,7 +123,7 @@ elif [[ "${assembler,,}" == "raven" ]];then
         busco -c $NCPU --out_path "${OUTFOLDER}"/ \
                 -i "${OUTFOLDER}"/Assembly.fasta  \
                 -l "$database" \
-                -m genome \
+                -m genome -f \
                 "$genefinder"
     else
         echo The file "${OUTFOLDER}"/assembly.fasta already exist
@@ -154,7 +145,7 @@ else
 fi
       
 #===============================================================================
-
+NCPU=12
 compleasm.py download "${database}"
 
 if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
@@ -171,9 +162,10 @@ else
 fi
 
 #===============================================================================
-
-
 #===============================================================================
+eval "$(conda shell.bash hook)"
+conda activate busco6.0.0
+
 # Run BUSCO with different options based on the provided busco type argument
 echo -e "\n-------------\nrunning busco\n-------------\n"
 #make command for busco gene finder:
@@ -188,7 +180,7 @@ do
             --out_path "${OUTFOLDER}"/ \
             -i "${assembly}" \
             -l "${database}" \
-            -m genome \
+            -m genome -f \
             "$genefinder"
     else
         echo "busco already ok"

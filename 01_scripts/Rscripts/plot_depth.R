@@ -20,7 +20,6 @@ argv <- commandArgs(T)
 input <- argv[1]
 
 inputfile <- paste0("zcat ", input)
-print("z")
 #faste file processing
 dp <- fread(inputfile)
 

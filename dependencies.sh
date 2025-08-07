@@ -79,9 +79,9 @@ then
     cd softs 2>/dev/null
 
 #  - Dorado install : 
-    wget https://cdn.oxfordnanoportal.com/software/analysis/dorado-0.7.3-linux-x64.tar.gz
-    tar zxvf dorado-0.7.3-linux-x64.tar.gz
-    cd dorado-0.7.3-linux-x64/bin
+    wget https://cdn.oxfordnanoportal.com/software/analysis/dorado-1.1.0-linux-x64.tar.gz
+    tar zxvf dorado-1.1.0-linux-x64.tar.gz
+    cd dorado-1.1.0-linux-x64/bin
     if ! ./dorado 2>/dev/null ; then 
         echo "installation of $command failed"
         exit 1
@@ -93,7 +93,6 @@ then
     cd ../../../
 
 fi
-
 
 # - CRAQ install :
 #install pycircos first (not installed in the env):

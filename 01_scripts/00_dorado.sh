@@ -44,6 +44,7 @@ fi
 
 #===============================================================================
 #download model:
+#dorado download --model sup@latest --data pod5/
 dorado download --model "$MODEL" 
 #actual basecall:
 mkdir 02_raw 2>/dev/null

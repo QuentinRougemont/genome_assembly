@@ -3,7 +3,8 @@
 #TO DO: 
 #for all script: declare OUTPUT as external variable to each script, so we can recover them here
 #so no script contain hardcoded path to folder/output
-#TO DO FOR compleasm/busco: if failed: process the rest anyway!
+#add SLURM workflow
+#NOTE: trimming no longer needed - especially for nano-hq
 
 #===============================================================================
 #          FILE: flow_assembly.sh
@@ -23,7 +24,7 @@
 # All associated scripts are located in the folder: 01_scripts
 
 # ./FlowAssembly.sh -g <genome> -t <type> -s <genomesize(mbp)> -a <assembler> -d <busco_database> -T <trimm_ONT_(YES/NO)> #optional: -b <Busco_type> -N <NCPU>
-# Exemple ONT  : ./FlowAssembly.sh -g pod5folder/ -p myspecies -t nano-hq -s 30 -a flye -d basidiomycota -T YES -b metaeuk -N 20 -m "model"
+# Exemple ONT  : ./FlowAssembly.sh -g pod5folder/ -p myspecies -t nano-hq -s 30 -a flye -d basidiomycota -T NO -b metaeuk -N 20 -m "model"
 # Exemple HiFi : ./FlowAssembly.sh -g hifi.bam   -t hifi        -s 30 -a hifiasm -d basidiomycota -T NO -b miniprot -N 10
 # Exemple ONT :  ./FlowAssembly.sh -g ont.fq.gz  -t nano-raw    -s 30 -a flye    -d basidiomycota -T YES -b miniprot -N 10 -i path/to/illumina_folder/
 
