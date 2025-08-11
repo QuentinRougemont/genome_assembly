@@ -354,6 +354,9 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
                 echo "Chopper Done"
             fi
             READS="02_trimmed_ONT/*gz"
+        else
+            echo "no trimming required"
+            READS="$BASE"
 	    fi
     fi
  
@@ -375,9 +378,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     else
         echo The folder "${OUTFOLDER}" is already created
     fi
-
-    INFOLDER="$READS" 
-    if ! bash  01_scripts/06_ONT_assembler.sh "$INFOLDER" \
+    if ! bash  01_scripts/06_ONT_assembler.sh "$READS" \
             "${OUTFOLDER}" \
             "${genomesize}" \
             "${type}" \

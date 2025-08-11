@@ -37,7 +37,16 @@ else
     NCPU=$8
 fi
 #===============================================================================
-INFOLDER=02_trimmed_ONT
+echo -e "\n\nrunning ONT genome assembly"
+echo "INFOLDER is $INFOLDER"
+echo "OUTFOLDER is $OUTFOLDER"
+echo "genome size is $genomesize"
+echo "nanotype is $nanotype"
+echo "assembler is $assembler"
+echo "database is $database"
+echo -e "buscotype is $buscotype\n\n"
+#===============================================================================
+
 # Test if user specified a number of CPUs, if not, default to 8
 if [[ -z "$NCPU" ]]
 then
