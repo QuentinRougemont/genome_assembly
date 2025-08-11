@@ -86,9 +86,9 @@ then
             | samtools sort --threads "$NCPU" > "$OUTFOLDER"/"$SPECIES".bam
     
         samtools depth  "$OUTFOLDER"/"$SPECIES".bam |\
-            gzip > "$OUTFOLDER"/"$SPECIES".dp.gz
+            pigz -p $NCPU > "$OUTFOLDER"/"$SPECIES".dp.gz
         rm runme
-        Rscript 01_scripts/plot_depth.R "$OUTFOLDER"/"$SPECIES".dp.gz
+        Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/"$SPECIES".dp.gz
     fi
 else
     echo "minimap output already here"

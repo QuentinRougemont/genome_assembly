@@ -17,7 +17,8 @@
 #===============================================================================
 
 #model (to be set manually for now):
-model="r941_min_high_g360" #set it according to your sequencing technology
+#model="r941_min_high_g360" #set it according to your sequencing technology
+model="dna_r10.4.1_e8.2_400bps_sup@v4.3.0"
 
 # Global variables
 # Check if the number of arguments is correct
@@ -48,6 +49,11 @@ then
 fi
 
 #===============================================================================
+ulimit -Hn 10048
+ulimit -Hs 10048
+
+eval "$(conda shell.bash hook)"
+conda activate medaka2.10
 
 # Run medaka:
 if [ ! -f "${OUTFOLDER}"/consensus.fasta ]; then
@@ -55,6 +61,9 @@ if [ ! -f "${OUTFOLDER}"/consensus.fasta ]; then
 else
     echo The file "${OUTFOLDER}"/consensus.fasta already exist
 fi
+samtools depth  "$OUTFOLDER"/calls_to_draft.bam |\
+    pigz -p $NCPU > "$OUTFOLDER"/calls_to_draft.dp.gz
+Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/calls_to_draft.dp.gz
 
 #===============================================================================
 echo -e "\n-------------------------------"

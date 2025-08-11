@@ -23,6 +23,11 @@ inputfile <- paste0("zcat ", input)
 #faste file processing
 dp <- fread(inputfile)
 
+m  <- dp %>% group_by(V1) %>% summarise(dp = mean(V3))
+summary(m$dp)
+input2 <- gsub('.dp.gz','', input)
+write.table(m, paste0('mean_dp',input2,'.txt'), quote = F, row.names = F)
+
 #filter small contigs
 dp1 <- dp %>% group_by(V1) %>%
         filter(n()>10e4) %>%  #ignore the small contigs

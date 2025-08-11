@@ -435,7 +435,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
             echo -e "\n-------------------------------"
         fi
 
-        if [ -z ${illumina+x} ] ; then
+        if [ -z ${illumina+x} ]; then
                 echo "no illumina data provided\npolishing cannot be performed"
                 echo -e "stopping analyses\n---------------------"
         else
