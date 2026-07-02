@@ -2,7 +2,7 @@
 #===============================================================================
 #          FILE: 08_medaka.sh
 # 
-#         USAGE: ./08_medaka.sh <genome> <OUTFOLDER> <READS> <busco database> <buscotype> <optional: NCPU>"
+#         USAGE: ./08_medaka.sh <genome> <OUTFOLDER> <READS> <busco database> <buscotype> "
 # 
 #   DESCRIPTION: polishing nano-raw (ONT) with medaka 
 # 
@@ -30,8 +30,7 @@ if [ $# -lt 5  ]; then
       \t 3: <OUTFOLDER> OUTFODLER name \n
       \t 4: <database>: For Busco\n
       \t 5: <buscotype>: type for busco : augustus metaeuk miniprot\n
-      \n\t optionally: \n
-      \t 5: <NCPU>: number of CPU"
+      \n\t optionally: \n"
     exit 1
 else
     genome=$1
@@ -39,15 +38,9 @@ else
     OUTFOLDER=$3
     database=$4
     buscotype=$5
-    NCPU=$6
 fi
 #===============================================================================
-# Test if user specified a number of CPUs, if not, default to 8
-if [[ -z "$NCPU" ]]
-then
-    NCPU=12
-fi
-
+source .cpu_mem
 #===============================================================================
 ulimit -Hn 10048
 ulimit -Hs 10048
@@ -57,12 +50,12 @@ conda activate medaka2.10
 
 # Run medaka:
 if [ ! -f "${OUTFOLDER}"/consensus.fasta ]; then
-    medaka_consensus -i "${READS}" -d "${genome}" -o "${OUTFOLDER}" -t "${NCPU}" -m "${model}" 
+    medaka_consensus -i "${READS}" -d "${genome}" -o "${OUTFOLDER}" -t "${NCPUS_MEDAKA}" -m "${model}" 
 else
     echo The file "${OUTFOLDER}"/consensus.fasta already exist
 fi
 samtools depth  "$OUTFOLDER"/calls_to_draft.bam |\
-    pigz -p $NCPU > "$OUTFOLDER"/calls_to_draft.dp.gz
+    pigz -p "$NCPUS_MEDAKA" > "$OUTFOLDER"/calls_to_draft.dp.gz
 Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/calls_to_draft.dp.gz
 
 #===============================================================================
@@ -83,7 +76,7 @@ compleasm.py download "${database}"
 if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
 then
     #run
-    compleasm.py run -t$NCPU \
+    compleasm.py run -t "$NCPUS_COMPLEASM" \
             -l "${database}" \
             -a "${OUTFOLDER}"/consensus.fasta \
             -o "${OUTFOLDER}"/compleasm
@@ -94,7 +87,7 @@ else
 fi
 #===============================================================================
 eval "$(conda shell.bash hook)"
-conda activate busco6.0.0
+conda activate busco6.1.0
 
 # make command for busco gene finder:
 genefinder=$(echo "--""$buscotype" )
@@ -105,7 +98,7 @@ do
     #run busco 
     if [ ! -s "${file}" ] 
     then
-        busco -c "$NCPU" \
+        busco -c "$NCPUS_BUSCO" \
         --out_path "${OUTFOLDER}"/ \
         -i "${OUTFOLDER}"/consensus.fasta  \
         -l "$database" \

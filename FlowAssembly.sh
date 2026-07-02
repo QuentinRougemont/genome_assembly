@@ -1,11 +1,8 @@
 #!/bin/bash
-
 #TO DO: 
 #for all script: declare OUTPUT as external variable to each script, so we can recover them here
 #so no script contain hardcoded path to folder/output
 #add SLURM workflow
-#NOTE: trimming no longer needed - especially for nano-hq
-
 #===============================================================================
 #          FILE: flow_assembly.sh
 #         USAGE: ./flow_assembly.sh opt1 ... optN
@@ -44,7 +41,7 @@ Help()
         4 - estimate genome quality (busco/compleasm, QV/completness, k-mer multiplicity, quast, CRAQ)\n
         5 - map back the reads "
    echo " "
-   echo "Usage: $0 [-g|-t|-a|-d|-b|-T|-N|-h|]"
+   echo "Usage: $0 [-g|-t|-a|-d|-b|l|-T|-N|-h|]"
    echo "options:"
    echo " -h|--help: Print this Help."
    echo " -g|--genome: <fastq/bam/pod5> file name (full path) "
@@ -53,6 +50,7 @@ Help()
    echo " -a|--assembler: <assembler>: Assembler type : canu flye (shasta raven) => ONT or canu hifiasm => HIFI"
    echo " -d|--datatype: <database>: For Busco (can be obtained through busco --list-dataset)"
    echo " -b|--buscotype: <buscotype>: Type for Busco : augustus meteuk miniprot"
+   echo " -l|--ploidy : <ploidy>: integer: 1 or 2 for ploidy levels for genomescope"
    echo "ONT specific OPTION:"
    echo " -T|--trimm: <trimm>: YES/NO for trimming raw ONT reads with chopper"
    echo " -i|--illumina: <illumina_path> : path to folder containing illumina file for polishing raw-ont data"
@@ -62,6 +60,8 @@ Help()
    echo " -m|--model <model> for Dorado basecalling" 
    echo "other optional variable:"
    echo " -N|--NCPU <NCPU> : number of CPU to be used "
+   echo "-z|--taxid <taxid> : id of taxon for fcs.gx and decontamination"
+   echo "-x|--gxdb <path/to/fcs_gx db> "
    echo " "
 }
 
@@ -82,6 +82,8 @@ while [ $# -gt 0 ] ; do
         echo -e "lineage databse for busco is ***${database}*** \n" >&2;;
     -b  | --buscotype  ) buscotype="$2"   ; 
         echo -e "genome finder for busco will be ***${buscotype}*** \n" >&2;;
+    -l | --ploidy ) ploidy="$2" ;
+        echo -e "plody levels will be ***${ploidy}*** \n" >&2 ;;
         #optional for ONT: 
     -i  | --illumina  ) illumina="$2"   ; 
         echo -e "illumina data for polishing will be ***${illumina}*** \n" >&2;;
@@ -97,6 +99,10 @@ while [ $# -gt 0 ] ; do
         #optional for all : 
     -N  | --ncpu )  NCPU="$2"   ; 
         echo -e "number of CPU set to: ***${NCPU}*** \n" >&2 ;; 
+    -z | --taxid) taxid="$2" ;
+        echo -e "taxon id for fcs gx is : ***${taxid}*** \n" >&2 ;;
+    -x | --gxdb ) gxdbpath="$2" ;
+        echo -e "gxdbpath will be : ***${gxdbpath}*** \n" >&2 ;;
     -h  | --help ) Help ; exit 2 ;;
    esac
    shift
@@ -108,9 +114,10 @@ if [ -z "${genome}" ] || [ -z "${type}" ] || [ -z "${genomesize}" ] ||
     exit 2
 fi
 
-#BASE=$(basename "${genome%%.*}" ) 
-#BASE=$(basename "${genome%%.f*q*}" )
-BASE=$(basename "${genome%%.*}" )
+#BASE=$(basename "${genome%%.*}" )
+BASE0=$(basename "${genome}" )
+BASE="${BASE0%%.*}"
+
 extension="${genome##*.}"
 
 echo BASE name is "$BASE"
@@ -159,7 +166,7 @@ echo "Run scripts for Hifi type"
     kmer_length=21
     echo -e "genome is $genome" 
     chmod +x ./01_scripts/04_jellyfish
-    if ! ./01_scripts/04_jellyfish "${genome}" "${kmer_length}" ; then
+    if ! ./01_scripts/04_jellyfish "${genome}" "${ploidy}" "${kmer_length}" ; then
         echo "error Jellyfish failed"
         exit 1
     else 
@@ -285,12 +292,26 @@ echo "Run scripts for Hifi type"
     echo -e "\n-------------------------------"
     #for HiFi only no short reads are available:
     SMSBAM=07_minimap_"$assembler"/"$BASE".bam
-    ./01_scripts/14.craq.sh "$assembly" "$SMSBAM" 
+    chmod +x 01_scripts/14_craq.sh
+    ./01_scripts/14_craq.sh "$assembly" "$SMSBAM" 
 
     ##TO DO: if ploidy == 2  run hapdup if assembler is flye 
     ##Run merqury on hap1/hap2 of hifiasm
 
     #run purge dup if necessary
+
+    #finaly run fcs.gx for contamination and adaptors:
+    if [ -v '$taxid' ] && [ -v '$gxdbpath' ]
+    then
+        chmod +x 01_scripts/15_fcsgx.contam.sh
+        ./01_scripts/15_fcsgx.contam.sh "${assembly}" "${taxid}"  "$gxdbpath"
+    
+        chmod +x 01_scripts/16_fcsgx.adapt.sh
+        ./01_scripts/16_fcsgx.adapt.sh "${assembly}"
+    
+        chmod +x 01_scripts/17_clean_genome.sh
+        ./01_scripts/17_clean_genome.sh "${assembly}" "${taxid}" "${gxdbpath}"
+    fi
 
 # Run scripts for ONT type
 elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
@@ -329,7 +350,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
         kmer_length=21
         READS="02_raw/$OUTPUTNAME.fastq.gz"
         chmod +x ./01_scripts/04_jellyfish
-        ./01_scripts/04_jellyfish "${READS}" "${kmer_length}"
+        ./01_scripts/04_jellyfish "${READS}" "${ploidy} "${kmer_length}"
 
 
     elif [[ "${type,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "NO" ]] ; then
@@ -573,7 +594,6 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     fi
 
     #run craq
-    #for HiFi only no short reads are availabe:
     if [[ "${type,,}" == "nano-raw" ]]
     then
     
@@ -624,4 +644,18 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
         fi 
     fi
     echo "Assemblage DONE"
+    if [ -v '$taxid' ] && [ -v '$gxdbpath' ]
+    then
+        chmod +x 01_scripts/15_fcsgx.contam.sh
+        ./01_scripts/15_fcsgx.contam.sh "${assembly}" "${taxid}"  "$gxdbpath"
+    
+        chmod +x 01_scripts/16_fcsgx.adapt.sh
+        ./01_scripts/16_fcsgx.adapt.sh "${assembly}"
+    
+        chmod +x 01_scripts/17_clean_genome.sh
+        ./01_scripts/17_clean_genome.sh "${assembly}" "${taxid}" "${gxdbpath}"
+    fi
+
+
 fi
+

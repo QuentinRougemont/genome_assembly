@@ -79,9 +79,14 @@ then
     cd softs 2>/dev/null
 
 #  - Dorado install : 
-    wget https://cdn.oxfordnanoportal.com/software/analysis/dorado-1.1.0-linux-x64.tar.gz
-    tar zxvf dorado-1.1.0-linux-x64.tar.gz
-    cd dorado-1.1.0-linux-x64/bin
+    #wget https://cdn.oxfordnanoportal.com/software/analysis/dorado-1.1.0-linux-x64.tar.gz
+    #tar zxvf dorado-1.1.0-linux-x64.tar.gz
+    #tar zxvf dorado-1.1.0-linux-x64.tar.gz
+    #cd dorado-1.1.0-linux-x64/bin
+    #wget https://github.com/nanoporetech/dorado/archive/refs/tags/v2.0.1.zip
+    wget https://cdn.oxfordnanoportal.com/software/analysis/dorado-2.0.1-linux-x64.tar.gz
+    tar zxvf dorado-2.0.1-linux-x64.tar.gz
+    cd dorado-2.0.1-linux-x64/bin
     if ! ./dorado 2>/dev/null ; then 
         echo "installation of $command failed"
         exit 1
@@ -122,3 +127,9 @@ then
     source ~/.bashrc  
     cd ../../
 fi
+
+cd 01_scripts/ 
+curl -LO https://github.com/ncbi/fcs/raw/main/dist/run_fcsadaptor.sh
+chmod 755 run_fcsadaptor.sh
+curl https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/releases/latest/fcs-adaptor.sif -Lo fcs-adaptor.sif
+cd ../

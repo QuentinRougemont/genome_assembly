@@ -32,6 +32,7 @@ else
     database=$4
     buscotype=$5
 fi
+source .cpu_mem
 #===============================================================================
 if [ ! -e "$OUTFOLDER" ]; then
     # Create a directory for Pilon output
@@ -76,12 +77,11 @@ else
 fi
 
 #===============================================================================
-NCPU=12
 compleasm.py download "${database}"
 if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
 then
     #run
-    compleasm.py run -t$NCPU \
+    compleasm.py run -t "$NCPUS_COMPLEASM" \
             -l "${database}" \
             -a "${OUTFOLDER}"/pilon.fasta  \
             -o "${OUTFOLDER}"/compleasm
@@ -102,7 +102,7 @@ for file in "${OUTFOLDER}"/BUSCO_pilon.fasta/short*txt
 do
     if [ ! -s "${file}" ] 
     then
-        busco -c "$NCPU" \
+        busco -c "$NCPUS_BUSCO" \
             --out_path "${OUTFOLDER}"/ \
             -i "${OUTFOLDER}"/pilon.fasta  \
             -l "$database" \

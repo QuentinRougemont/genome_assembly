@@ -25,7 +25,7 @@ dp <- fread(inputfile)
 
 m  <- dp %>% group_by(V1) %>% summarise(dp = mean(V3))
 summary(m$dp)
-input2 <- gsub('.dp.gz','', input)
+input2 <- gsub('.dp.gz','', basename(input))
 write.table(m, paste0('mean_dp',input2,'.txt'), quote = F, row.names = F)
 
 #filter small contigs

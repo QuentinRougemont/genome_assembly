@@ -15,15 +15,11 @@
 #       CREATED: 05/09/2024 12:43:31
 #      REVISION:  ---
 #===============================================================================
-
-set -o nounset                              # Treat unset variables as an error
-
-#===============================================================================
 #       External variable 
 ASSEMBLY=$1 #genome assembly 
 SMSBAM=$2   #long read bam
+#optional for ONT:
 NGSBAM=$3   #NGS reads
-
 #===============================================================================
 
 #       check manually installed command:
@@ -37,10 +33,17 @@ then
 fi
 
 #===============================================================================
-
 if [ ! -s CRAQ_results/"${ASSEMBLY%.fa*}"/consensus/runAQI_out/out_final.Report ] 
 then 
-    craq -g "$ASSEMBLY" -sms "$SMSBAM" -ngs "$NGSBAM" -o CRAQ_results/"${ASSEMBLY%.fa*}"
+    if [ -v "$NGSBAM" ]
+    then
+        samtools index "$SMSBAM"
+        samtools index "$NGSBAM"
+        craq -g "$ASSEMBLY" -sms "$SMSBAM" -ngs "$NGSBAM" -o CRAQ_results/"${ASSEMBLY%.fa*}"
+    else
+        samtools index "$SMSBAM"
+        craq -g "$ASSEMBLY" -sms "$SMSBAM" -o CRAQ_results/"${ASSEMBLY%.fa*}"
+    fi
 else
     echo "craq output already available"
 fi

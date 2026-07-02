@@ -1,7 +1,7 @@
 #!/bin/bash
 #===============================================================================
 #          FILE: 05_hifi_assembler.sh
-#         USAGE: ./05_hifi_assembler.sh <genome> <assembler> <database> <buscotype> <genomesize> <NCPU>
+#         USAGE: ./05_hifi_assembler.sh <genome> <assembler> <database> <buscotype> <genomesize> 
 #   DESCRIPTION:  microscript to extract hifi data from bam
 # 
 #       OPTIONS: ---
@@ -15,15 +15,14 @@
 #===============================================================================
 # Global variables
 if [ $# -ne 5 ]; then
-    echo "USAGE: $0 : <genome> <assembler> <database> <buscotype> <genomesize> (optional: <NCPU>)"
+    echo "USAGE: $0 : <genome> <assembler> <database> <buscotype> <genomesize>"
     echo -e "Expecting four arguments : \n 
       \t 1: <genome>: genome/folder_name with the fastq\n
       \t 2: <assembler>: type assembler : canu ou hifi\n
       \t 3: <database>: For Busco\n
       \t 4: <buscotype>: type for busco : augustus metaeuk miniprot\n
       \t 5: <genomesize> : in m
-      \n\t optionally: \n
-      \t 6: <NCPU> : optional: number of cpu to use \n"
+      \n\t optionally: \n"
     exit 1
 else
     genome=$1
@@ -31,18 +30,13 @@ else
     database=$3
     buscotype=$4
     genomesize=$5
-    NCPU=$6
 fi
 
+source .cpu_mem
 #===============================================================================
 BASE=$(basename "${genome%%.*}" ) 
 #extension="${genome##*.}"
 
-# Test if user specified a number of CPUs, if not, default to 8
-if [[ -z "$NCPU" ]]
-then
-    NCPU=40
-fi
 
 OUTFOLDER=05_"${BASE}"_"${assembler}" 
 if [ ! -d "${OUTFOLDER}" ]; 
@@ -72,7 +66,7 @@ then
     then
         #running hifiasm
         hifiasm -o "${OUTFOLDER}"/"${BASE}" \
-            -t $NCPU \
+            -t "$NCPUS_HIFIASM" \
             "${genome}" 2>&1 \
             | tee LOG/log."${BASE}"_"${assembler}"
            # "$s" "$O" "$D" "$N" "$P" "$h" "$l" \
@@ -111,7 +105,7 @@ then
        flye --pacbio-hifi "${genome}" \
             --genome-size "$genomesize"m \
             -o "${OUTFOLDER}" \
-            -t $NCPU
+            -t "$NCPUS_FLYE"
     else
         echo "flye output already present"
     fi
@@ -146,7 +140,7 @@ compleasm.py download "${database}"
 if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
 then
     #run
-    compleasm.py run -t$NCPU \
+    compleasm.py run -t "$NCPUS_COMPLEASM" \
             -l "${database}" \
             -a "${assembly}" \
             -o "${OUTFOLDER}"/compleasm
@@ -167,7 +161,7 @@ for file in "${OUTFOLDER}"/BUSCO_*fasta/short*txt
 do
     if [ ! -s "${file}" ] 
     then
-        busco -c $NCPU \
+        busco -c "$NCPUS_BUSCO" \
             --out_path "${OUTFOLDER}"/ \
             -i "${assembly}" \
             -l "${database}" \

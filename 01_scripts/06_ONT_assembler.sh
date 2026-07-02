@@ -2,7 +2,7 @@
 #===============================================================================
 #          FILE: 06_ONT_assembler.sh
 # 
-#         USAGE: ./06_ONT_assembler.sh <genome> <genomesize> <nanotype> <assembler> <database> <buscotype> <NCPU>
+#         USAGE: ./06_ONT_assembler.sh <genome> <genomesize> <nanotype> <assembler> <database> <buscotype>
 # 
 #   DESCRIPTION: script to run flye/canu/shasta for ONT data + run busco
 # 
@@ -34,8 +34,9 @@ else
     assembler=$5
     database=$6
     buscotype=$7
-    NCPU=$8
 fi
+source .cpu_mem
+
 #===============================================================================
 echo -e "\n\nrunning ONT genome assembly"
 echo "INFOLDER is $INFOLDER"
@@ -47,11 +48,6 @@ echo "database is $database"
 echo -e "buscotype is $buscotype\n\n"
 #===============================================================================
 
-# Test if user specified a number of CPUs, if not, default to 8
-if [[ -z "$NCPU" ]]
-then
-    NCPU=20
-fi
 
 if [[ -f "$INFOLDER/*fq.gz" ]] ; then
     trim="--trimmed"
@@ -69,13 +65,13 @@ if [[ "${assembler,,}" == "flye" ]]; then
             flye --nano-raw "$INFOLDER"/*.fastq.gz \
                  --genome-size "$genomesize"m \
                  -o "${OUTFOLDER}" \
-                 -t $NCPU
+                 -t "$NCPUS_FLYE"
         elif [[ "${nanotype}" == 'nano-hq' ]] ; then
             echo "assuming nano-hq"
             flye --nano-hq  "$INFOLDER"/*.fastq.gz \
                 --genome-size "$genomesize"m \
                 -o "${OUTFOLDER}" \
-                -t $NCPU
+                -t "$NCPU_FLYE"
         else
             echo 
             "error unknown sequencing type"
@@ -115,7 +111,7 @@ elif [[ "${assembler,,}" == "shasta" ]];then
             --assemblyDirectory \
             "${OUTFOLDER}" \
             --config Nanopore-May2022 \
-            --thread $NCPU
+            --thread "$NCPUS_FLYE"
 
     else
         echo -e "The file $OUTFOLDER/Assembly.fasta already exist"
@@ -125,11 +121,11 @@ elif [[ "${assembler,,}" == "shasta" ]];then
 
 elif [[ "${assembler,,}" == "raven" ]];then
     if [ ! -f "${OUTFOLDER}"/assembly.fasta  ]; then
-        raven -t $NCPU \
+        raven -t "$NCPUS_FLYE" \
             $INFOLDER > "$OUTFOLDER"/assembly.fasta
      
         # Run BUSCO with different options based on the provided busco type argument
-        busco -c $NCPU --out_path "${OUTFOLDER}"/ \
+        busco -c "$NCPUS_BUSCO" --out_path "${OUTFOLDER}"/ \
                 -i "${OUTFOLDER}"/Assembly.fasta  \
                 -l "$database" \
                 -m genome -f \
@@ -154,13 +150,12 @@ else
 fi
       
 #===============================================================================
-NCPU=12
 compleasm.py download "${database}"
 
 if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
 then
     #run
-    compleasm.py run -t$NCPU \
+    compleasm.py run -t "$NCPUS_COMPLEASM" \
             -l "${database}" \
             -a "${assembly}" \
             -o "${OUTFOLDER}"/compleasm
@@ -185,7 +180,7 @@ for file in "${OUTFOLDER}"/BUSCO_*/short*txt
 do
     if [ ! -s "${file}" ] 
     then
-        busco -c $NCPU \
+        busco -c "$NCPUS_BUSCO" \
             --out_path "${OUTFOLDER}"/ \
             -i "${assembly}" \
             -l "${database}" \
@@ -195,8 +190,3 @@ do
         echo "busco already ok"
     fi
 done 
-
-#runbusco=$(echo "busco -c $NCPU --out_path 05_${BASE}_${assembler}/ \
-#    -i "$assembly" -l "$database" -m genome  "$genefinder" " )
-
-#$run_busco

@@ -15,7 +15,6 @@
 #       CREATED: 07/08/2024 11:54:40
 #      REVISION:  ---
 #===============================================================================
-
 set -o nounset                              # Treat unset variables as an error
 #===============================================================================
 fastq=$1   #full path to the fastq.(gz)
@@ -52,9 +51,4 @@ then
 else
     echo -e "\n------------\ngc and len info already available\n------------\n\n"
 fi
-
-#then run Rscript to plot de length distributions
-#then plot histogram in R
-Rscript 01.scripts/Rscripts/plot_len_gc.R  "$OUTFOLDER"/"$BASE".len.gc.gz
-#TO DO: add code if R fails
-
+Rscript 01_scripts/Rscripts/plot_len_gc.R  "$OUTFOLDER"/"$BASE".len.gc.gz

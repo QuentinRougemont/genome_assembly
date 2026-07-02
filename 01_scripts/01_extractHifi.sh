@@ -30,7 +30,7 @@ else
     INPUT=$1
 fi
 #===============================================================================
-BASE=$(basename "${INPUT%%.*}" ) 
+BASE=$(basename "${INPUT%.*bam}" ) 
 #extension="${INPUT##*.}"
 
 if [ ! -d 02_FilteredHifi ]; then

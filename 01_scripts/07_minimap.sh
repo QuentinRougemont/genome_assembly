@@ -40,6 +40,8 @@ else
     echo -e "output folder is $OUTFOLDER\n"
     echo -e "\n"
 fi
+source .cpu_mem
+
 #===============================================================================
 # create architecture and checks 
 BASE=$(basename "${READS%%.*}" ) 
@@ -66,8 +68,9 @@ fi
 if [ "$filesize" -lt "$minsize" ]
 then
     echo "running minimap"
-    if [[ $TYPE = "Hifi" ]]
+    if [[ $TYPE = "hifi" ]]
     then
+        echo "reads are hifi"
         #to create paf file for inspection
         #minimap2 -c -x map-pb  -t "$NCPU" "$ASSEMBLY" "$READS" |gzip  > minimap2.paf.gz
         #to create same file for depth plot :
@@ -77,6 +80,7 @@ then
     
         samtools depth  "$OUTFOLDER"/"$BASE".bam |\
             gzip > "$OUTFOLDER"/"$BASE".dp.gz
+        Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/"$BASE".dp.gz
     else
         echo "assuming reads are ONT"
         echo -e "
