@@ -63,13 +63,13 @@ if [[ "${assembler,,}" == "flye" ]]; then
         if [[ "${nanotype}" == "nano-raw" ]] ; then
             echo "run flye on nano-raw: "
             flye --nano-raw "$INFOLDER"/*.fastq.gz \
-                 --genome-size "$genomesize"m \
+                 --genome-size "$genomesize" \
                  -o "${OUTFOLDER}" \
                  -t "$NCPUS_FLYE"
         elif [[ "${nanotype}" == 'nano-hq' ]] ; then
             echo "assuming nano-hq"
             flye --nano-hq  "$INFOLDER"/*.fastq.gz \
-                --genome-size "$genomesize"m \
+                --genome-size "$genomesize" \
                 -o "${OUTFOLDER}" \
                 -t "$NCPU_FLYE"
         else
@@ -92,7 +92,7 @@ elif [[ "${assembler,,}" == "canu" ]];then
             # Run Canu with the genome size
             canu -p assembly \
                 -d "${OUTFOLDER}" \
-                genomeSize="${genomesize}"m \
+                genomeSize="${genomesize}" \
                 minReadLength=1200 \
                -nanopore "$INFOLDER"/*.fastq.gz
                 #${trim} 

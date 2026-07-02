@@ -19,6 +19,8 @@ set -o nounset                              # Treat unset variables as an error
 #===============================================================================
 fastq=$1   #full path to the fastq.(gz)
 BASE=$(basename "${fastq%%.*}" ) 
+LENGTH=$2  #expected length -- parameter genomesize in base pairs
+
 
 OUTFOLDER=03_length_distrib/"$BASE"
 mkdir -p "$OUTFOLDER"/ 2>/dev/null
@@ -52,3 +54,22 @@ else
     echo -e "\n------------\ngc and len info already available\n------------\n\n"
 fi
 Rscript 01_scripts/Rscripts/plot_len_gc.R  "$OUTFOLDER"/"$BASE".len.gc.gz
+
+
+#get a sense of expected depth based on total length and expected length:
+expdp=$(zcat  "$OUTFOLDER"/"$BASE".len.gc.gz|awk -v n="$BASE" -v l="$LENGTH" '{s+=$2}END{print s/l}' )
+
+threshold=20.0 #minimal sequencing depth
+#verify that the mean expected depth is above a given threshold
+ if awk -v d="$expdp" -v t="$threshold" 'BEGIN{exit !(d < t)}' ; 
+ then 
+     echo "=================================================================="
+     echo "!!!warning sequencing depth seems lower than 20.0 given the expected genome size" ; 
+     echo "please verify that this is ok for you !!!!" 
+     echo "=================================================================="
+     exit 
+ else 
+     echo " " ; 
+ fi
+
+

@@ -46,11 +46,11 @@ Help()
    echo " -h|--help: Print this Help."
    echo " -g|--genome: <fastq/bam/pod5> file name (full path) "
    echo " -t|--type: <data type>:  nano-hq/nano-raw/hifi "
-   echo " -s|--genomesize : <genome size>: size of the genome in mbp" 
+   echo " -s|--genomesize : <genome size>: INTEGER: size of the genome in bp" 
    echo " -a|--assembler: <assembler>: Assembler type : canu flye (shasta raven) => ONT or canu hifiasm => HIFI"
    echo " -d|--datatype: <database>: For Busco (can be obtained through busco --list-dataset)"
    echo " -b|--buscotype: <buscotype>: Type for Busco : augustus meteuk miniprot"
-   echo " -l|--ploidy : <ploidy>: integer: 1 or 2 for ploidy levels for genomescope"
+   echo " -l|--ploidy : <ploidy>: INTEGER: 1 or 2 for ploidy levels for genomescope"
    echo "ONT specific OPTION:"
    echo " -T|--trimm: <trimm>: YES/NO for trimming raw ONT reads with chopper"
    echo " -i|--illumina: <illumina_path> : path to folder containing illumina file for polishing raw-ont data"
@@ -58,10 +58,10 @@ Help()
    echo " -c|--call: <YES/NO> a string: if <YES> performs dorado basecalling from pod5, if <NO> run from existing fastq.gz" 
    echo " -p|--species <species id> to be used after basecalling"
    echo " -m|--model <model> for Dorado basecalling" 
-   echo "other optional variable:"
-   echo " -N|--NCPU <NCPU> : number of CPU to be used "
+   echo "other optional variable (for fcs.gx):"
    echo "-z|--taxid <taxid> : id of taxon for fcs.gx and decontamination"
    echo "-x|--gxdb <path/to/fcs_gx db> "
+   echo "configurations of ressource use can be customize in .cpu_mem file"
    echo " "
 }
 
@@ -158,7 +158,7 @@ echo "Run scripts for Hifi type"
 
     echo -e "\nplotting length of read and gc content\n" 
     chmod +x ./01_scripts/02_awk_fastq_length_GCcontent.sh
-    ./01_scripts/02_awk_fastq_length_GCcontent.sh "${genome}"
+    ./01_scripts/02_awk_fastq_length_GCcontent.sh "${genome}" "${genomesize}"
     
 
     echo "running jellyfish and GenomeScope" 
@@ -166,7 +166,7 @@ echo "Run scripts for Hifi type"
     kmer_length=21
     echo -e "genome is $genome" 
     chmod +x ./01_scripts/04_jellyfish
-    if ! ./01_scripts/04_jellyfish "${genome}" "${ploidy}" "${kmer_length}" ; then
+    if ! ./01_scripts/04_jellyfish "${genome}" "${ploidy}" "${kmer_length}" "${genomesize}" "${type}" ; then
         echo "error Jellyfish failed"
         exit 1
     else 
@@ -350,7 +350,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
         kmer_length=21
         READS="02_raw/$OUTPUTNAME.fastq.gz"
         chmod +x ./01_scripts/04_jellyfish
-        ./01_scripts/04_jellyfish "${READS}" "${ploidy} "${kmer_length}"
+        ./01_scripts/04_jellyfish "${READS}" "${ploidy} "${kmer_length}" "${genomesize}" "${type}"
 
 
     elif [[ "${type,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "NO" ]] ; then

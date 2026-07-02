@@ -81,6 +81,11 @@ then
         samtools depth  "$OUTFOLDER"/"$BASE".bam |\
             gzip > "$OUTFOLDER"/"$BASE".dp.gz
         Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/"$BASE".dp.gz
+        zcat "$OUTFOLDER"/"$BASE".dp.gz \
+            |sort -k2,2n \
+            |awk -f 01_scripts/median_col2.awk \
+            > "$OUTFOLDER"/"$BASE".median.dp.txt 
+
     else
         echo "assuming reads are ONT"
         echo -e "
@@ -93,6 +98,12 @@ then
             pigz -p $NCPU > "$OUTFOLDER"/"$SPECIES".dp.gz
         rm runme
         Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/"$SPECIES".dp.gz
+        
+        #verify median depth
+        zcat "$OUTFOLDER"/"$SPECIES".dp.gz \
+            |sort -k2,2n \
+            |awk -f 01_scripts/median_col2.awk \
+            > "$OUTFOLDER"/"$SPECIES".median.dp.txt 
     fi
 else
     echo "minimap output already here"
