@@ -93,7 +93,7 @@ fi
 
 #===============================================================================
 eval "$(conda shell.bash hook)"
-conda activate busco6.0.0
+conda activate busco6.1.0
 # make command for busco gene finder:
 genefinder=$(echo "--""$buscotype" )
 

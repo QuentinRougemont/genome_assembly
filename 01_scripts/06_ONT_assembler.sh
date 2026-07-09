@@ -168,7 +168,7 @@ fi
 #===============================================================================
 #===============================================================================
 eval "$(conda shell.bash hook)"
-conda activate busco6.0.0
+conda activate busco6.1.0
 
 # Run BUSCO with different options based on the provided busco type argument
 echo -e "\n-------------\nrunning busco\n-------------\n"
