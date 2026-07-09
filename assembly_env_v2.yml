@@ -1,5 +1,5 @@
-#mamba env create -n assembly_env -f assembly_env_v2.yml channel_priority:flexible
-name: assembly_env
+#mamba env create -n assembly_env2 -f assembly_env_v2.yml channel_priority:flexible
+name: assembly_env2
 channels:
   - defaults
   - anaconda

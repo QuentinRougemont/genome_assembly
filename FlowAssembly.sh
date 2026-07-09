@@ -26,7 +26,7 @@
 # Exemple ONT :  ./FlowAssembly.sh -g ont.fq.gz  -t nano-raw    -s 30 -a flye    -d basidiomycota -T YES -b miniprot -N 10 -i path/to/illumina_folder/
 
 eval "$(conda shell.bash hook)"
-conda activate assembly_env
+conda activate assembly_env2
 
 ############################################################
 # Help                                                     #
@@ -350,7 +350,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
         kmer_length=21
         READS="02_raw/$OUTPUTNAME.fastq.gz"
         chmod +x ./01_scripts/04_jellyfish
-        ./01_scripts/04_jellyfish "${READS}" "${ploidy} "${kmer_length}" "${genomesize}" "${type}"
+        ./01_scripts/04_jellyfish "${READS}" "${ploidy}" "${kmer_length}" "${genomesize}" "${type}"
 
 
     elif [[ "${type,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "NO" ]] ; then
