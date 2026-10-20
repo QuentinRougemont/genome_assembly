@@ -41,7 +41,7 @@ if [ ! -d 02_FilteredHifi ]; then
         echo "running extract hifi"
         extracthifi "$INPUT" 02_FilteredHifi/"$BASE"_extractHifi.bam
         pbindex 02_FilteredHifi/"$BASE"_extractHifi.bam
-        bam2fastq -o 02_FilteredHifi/"${BASE}" 02_FilteredHifi"${BASE}"/"$BASE"_extractHifi.bam
+        bam2fastq -o 02_FilteredHifi/"${BASE}" 02_FilteredHifi/"$BASE"_extractHifi.bam
     else
         echo "hifi bam aleary extracted"
     fi

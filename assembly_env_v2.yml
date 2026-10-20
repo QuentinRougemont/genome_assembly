@@ -1,5 +1,5 @@
-#mamba env create -n assembly_env2 -f assembly_env_v2.yml channel_priority:flexible
-name: assembly_env2
+#mamba env create -n assembly_env -f assembly_env_v2.yml channel_priority:flexible
+name: assembly_env
 channels:
   - defaults
   - anaconda
@@ -35,6 +35,7 @@ dependencies:
   - r-dplyr=1.1.4
   - pandas=2.3.1
   - ncbi-fcs-gx=0.5.5
+  - singularity=3.8.7
     #shitty packages (installed separately):
 #  - busco=6.0.0
 #  - medaka=2.1.0

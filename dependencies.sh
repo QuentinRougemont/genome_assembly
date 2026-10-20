@@ -42,7 +42,7 @@ fi
 
 #activate env to have pandas 
 eval "$(conda shell.bash hook)"
-conda activate assembly_env_full
+conda activate assembly_env
 
 # - compleasm (faster than the slow BUSCO) :
 command='compleasm.py'
@@ -129,6 +129,7 @@ then
 fi
 
 cd 01_scripts/ 
+curl -LO https://github.com/ncbi/fcs/raw/main/dist/fcs.py
 curl -LO https://github.com/ncbi/fcs/raw/main/dist/run_fcsadaptor.sh
 chmod 755 run_fcsadaptor.sh
 curl https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/releases/latest/fcs-adaptor.sif -Lo fcs-adaptor.sif

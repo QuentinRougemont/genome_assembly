@@ -13,11 +13,9 @@ several quality checks: **QV**, **K-mer multicplicity**, genome-scope plot, **bu
  * ONT + illumina 
  
 
-# To Do:
+## Workflow overview:  
+  ![Figure1](https://github.com/QuentinRougemont/genome_assembly/blob/main/pictures/Figure1.png)  
 
-* add contamination checks 
-
-* skip dorado if data already processed (make it optional) 
 
 
 ### Tested on linux, 
@@ -473,4 +471,11 @@ This will launch automatically a series of script as details below
 ##	What this does ? A Step by Step guide :  
 
 TO BE FILLED
+
+
+# To Do:
+
+* add contamination checks 
+
+* skip dorado if data already processed (make it optional) 
 
