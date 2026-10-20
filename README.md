@@ -43,13 +43,12 @@ git clone https://github.com/QuentinRougemont/genome_assembly/
 
 then run the following:
 ```sh
-mamba env create -f assembly_env.yml  
+mamba env create -n assembly_env -f assembly_env_v2.yml
 
 #for busco:
 mamba env create -f busco_env.yml
 
-#and for non-conda dependencies
-in a fixed folder in your /home: 
+#and for non-conda dependencies in a fixed folder in your /home: 
 bash ./dependencies.sh
 ```
 
