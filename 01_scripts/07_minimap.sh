@@ -2,7 +2,7 @@
 #===============================================================================
 #          FILE: 07_minimap.sh
 # 
-#         USAGE: ./07_minimap.sh <ASSEMBLY> <READS> <assembler> (optional: <NCPU>) 
+#         USAGE: ./07_minimap.sh <ASSEMBLY> <READS> <TYPE> <OUTFOLDER> <SPECIES> 
 # 
 #   DESCRIPTION: align raw read to ASSEMBLY to find problems and other use
 # 
@@ -41,11 +41,9 @@ else
     echo -e "\n"
 fi
 source .cpu_mem
-
 #===============================================================================
 # create architecture and checks 
 BASE=$(basename "${READS%%.*}" ) 
-
 mkdir "$OUTFOLDER" 2>/dev/null
 
 # Test if user specified a number of CPUs, if not, default to 8
@@ -53,7 +51,6 @@ if [ -z "$NCPU" ]
 then
     NCPU=20
 fi
-
 minsize=900000
 bamfile="$OUTFOLDER"/*.bam
 if [ -s $bamfile ] 
@@ -62,9 +59,7 @@ then
 else
     filesize=0
 fi
-
 #---------  run minimap ----------#
-
 if [ "$filesize" -lt "$minsize" ]
 then
     echo "running minimap"
@@ -85,6 +80,9 @@ then
             |sort -k2,2n \
             |awk -f 01_scripts/median_col2.awk \
             > "$OUTFOLDER"/"$BASE".median.dp.txt 
+        rm "$OUTFOLDER"/"$SPECIES".sam 
+
+        samtools view "$OUTFOLDER"/"$SPECIES".bam |cut -f 1-5 > column1.5.tmp
 
     else
         echo "assuming reads are ONT"
@@ -93,7 +91,7 @@ then
         bash runme 
         samtools view -Sb "$OUTFOLDER"/"$SPECIES".sam \
             | samtools sort --threads "$NCPU" > "$OUTFOLDER"/"$SPECIES".bam
-    
+        
         samtools depth  "$OUTFOLDER"/"$SPECIES".bam |\
             pigz -p $NCPU > "$OUTFOLDER"/"$SPECIES".dp.gz
         rm runme
@@ -103,8 +101,43 @@ then
         zcat "$OUTFOLDER"/"$SPECIES".dp.gz \
             |sort -k2,2n \
             |awk -f 01_scripts/median_col2.awk \
-            > "$OUTFOLDER"/"$SPECIES".median.dp.txt 
+                > "$OUTFOLDER"/"$SPECIES".median.dp.txt 
+        rm "$OUTFOLDER"/"$SPECIES".sam 
+        
+        samtools view "$OUTFOLDER"/"$SPECIES".bam |cut -f 1-5 > column1.5.tmp
+
+
+
     fi
 else
     echo "minimap output already here"
 fi
+
+
+#some post-proccessing:
+file=column1.5.tmp
+fai="${ASSEMBLY}".fai
+cut -f 3 $file |sort |uniq -c > ReadsCount
+grep -v "*" ReadsCount > tmp ; mv tmp ReadsCount
+
+rm test 2>/dev/null
+
+for i in $(awk '{print $2}' ReadsCount ) ; do
+        grep $i "$file" \
+        |cut -f 5 \
+        |sort \
+        |uniq -c \
+        |awk -v var=$i '{print var"\t"$0}' >> test
+done
+
+paste ReadsCount <(awk '$3=="0" ' test) \
+        |awk '{print $0"\t"$4/$1}' \
+        |awk '$2 == $3' > read.0
+
+awk '$6>0.8' read.0 > prop_read.0.above.80percent
+grep -Ff <(cut -f2 prop_read.0.above.80percent) <(cut -f 1-2 $fai) > length_prop_read.0.above.80percent
+
+#depth:
+grep -Ff <(cut -f2 prop_read.0.above.80percent) mean_dp*.txt > depth_prop_read.0.above.80percent
+
+rm column1.5.tmp

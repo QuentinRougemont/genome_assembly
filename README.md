@@ -43,7 +43,8 @@ git clone https://github.com/QuentinRougemont/genome_assembly/
 
 then run the following:
 ```sh
-mamba env create -n assembly_env -f assembly_env_v2.yml
+#mamba env create -n assembly_env -f assembly_env_v2.yml
+mamba  env create -p ./assembly_env -f assembly_env_v2.yml 
 
 #for busco:
 mamba env create -f busco_env.yml
@@ -477,4 +478,10 @@ TO BE FILLED
 * add contamination checks 
 
 * skip dorado if data already processed (make it optional) 
+
+* add SLURM code 
+
+* add option for filtration of low quality scaffold
+
+* add infos on scaffold with low depth read
 

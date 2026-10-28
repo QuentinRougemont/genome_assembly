@@ -2,18 +2,20 @@
 #===============================================================================
 #          FILE: 02_awk_fastq_length.sh
 # 
-#         USAGE: ./02_awk_fastq_length.sh <$fastq(.gz)> 
+#         USAGE: ./02_awk_fastq_length.sh <$fastq(.gz)> <BASE> <LENGTH> 
 # 
 #   DESCRIPTION: computing length of fastq files compressed or not 
 # 
-#       OPTIONS: ---
+#       OPTIONS: 3 arguments : 1) the fast file 
+#                              2) a base name (specie name for instance) 
+#                              3) the expected length (computed from genomeScope)
 #  REQUIREMENTS: awk
 #          BUGS: ---
 #         NOTES: ---
 #        AUTHOR: Q. Rougemont 
 #  ORGANIZATION: 
 #       CREATED: 07/08/2024 11:54:40
-#      REVISION:  ---
+#      REVISION: 25/11/2026 11:24:20
 #===============================================================================
 set -o nounset                              # Treat unset variables as an error
 #===============================================================================

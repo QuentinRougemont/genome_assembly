@@ -23,15 +23,33 @@ inputfile <- paste0("zcat ", input)
 #faste file processing
 dp <- fread(inputfile)
 
-m  <- dp %>% group_by(V1) %>% summarise(dp = mean(V3))
-summary(m$dp)
+m  <- dp %>% group_by(V1) %>% summarise(meanDepth = mean(V3), medDepth = median(V3) , std=sd(V3))
+summary(m$meanDepth)
+median(dp$V3)
+
 input2 <- gsub('.dp.gz','', basename(input))
-write.table(m, paste0('mean_dp',input2,'.txt'), quote = F, row.names = F)
+write.table(m, paste0('mean_dp.',input2,'.txt'), 
+            quote = F,
+            row.names = F,
+            col.names = c('contig','meanDepth','medianDepth','sdDepth'),
+            sep = " ")
+
+#write.table(paste0('sd:', sd(m$meanDepth), sep="\t"), 'sd_depth' )
 
 #filter small contigs
 dp1 <- dp %>% group_by(V1) %>%
         filter(n()>10e4) %>%  #ignore the small contigs
         ungroup()
+
+#make a list of contigs supported by few reads
+dp2 <- m %>% 
+        filter(meanDepth < quantile(meanDepth, 0.10)) %>%  #ignore the small contigs
+        select(V1)
+
+write.table(dp2, 'list_of_contigs_with_low_supporting_reads',
+            quote = F,
+            row.names = F,
+            col.names=F)
 
 #plot
 p1 <- ggplot(dp1, aes(x=V2, y=V3)) +

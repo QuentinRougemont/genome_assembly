@@ -17,17 +17,18 @@
 #===============================================================================
 # Check if the number of arguments is correct
 if [ $# -lt 6  ]; then
-    echo "USAGE: $0 : <genome> <genomesize> <nanotype> <assembler> <database> <buscotype>"
+    echo "USAGE: $0 : <FASTQ> <OUTFOLDER> <genomesize> <nanotype> <assembler> <database> <buscotype>"
     echo -e "Expecting five arguments : \n 
-      \t 1: <genome>: genome/folder_name with the fastq\n
-      \t 2: <genomesize> : estimated genome size \n
-      \t 3: <nanotype>  : ONT technology: nano-hq or nano-raw
-      \t 4: <assembler>: type assembler : canu flye shasta raven\n
-      \t 5: <database>: For Busco\n
-      \t 6: <buscotype>: gene predictor for Busco : augustus metaeuk miniprot"
+    \t 1: <FASTQ>    : genome (fastq.gz) \n
+    \t 2: <OUTFOLDER> : folder for the results \n 
+      \t 3: <genomesize> : estimated genome size \n
+      \t 4: <nanotype>  : ONT technology: nano-hq or nano-raw
+      \t 5: <assembler>: type assembler : canu flye shasta raven\n
+      \t 6: <database>: For Busco\n
+      \t 7: <buscotype>: gene predictor for Busco : augustus metaeuk miniprot"
     exit 1
 else
-    INFOLDER=$1
+    FASTQ=$1
     OUTFOLDER=$2
     genomesize=$3
     nanotype=$4
@@ -47,28 +48,19 @@ echo "assembler is $assembler"
 echo "database is $database"
 echo -e "buscotype is $buscotype\n\n"
 #===============================================================================
-
-
-if [[ -f "$INFOLDER/*fq.gz" ]] ; then
-    trim="--trimmed"
-    echo "data are trimmed"
-fi
-
-#===============================================================================
-
 # Run different assemblers based on the provided assembler argument
 if [[ "${assembler,,}" == "flye" ]]; then
     if [ ! -s "${OUTFOLDER}"/assembly.fasta ]; then
         # Run flye with the full path to input files
         if [[ "${nanotype}" == "nano-raw" ]] ; then
             echo "run flye on nano-raw: "
-            flye --nano-raw "$INFOLDER"/*.fastq.gz \
+            flye --nano-raw "$FASTQ" \
                  --genome-size "$genomesize" \
                  -o "${OUTFOLDER}" \
                  -t "$NCPUS_FLYE"
         elif [[ "${nanotype}" == 'nano-hq' ]] ; then
             echo "assuming nano-hq"
-            flye --nano-hq  "$INFOLDER"/*.fastq.gz \
+            flye --nano-hq  "$FASTQ" \
                 --genome-size "$genomesize" \
                 -o "${OUTFOLDER}" \
                 -t "$NCPU_FLYE"
@@ -94,8 +86,7 @@ elif [[ "${assembler,,}" == "canu" ]];then
                 -d "${OUTFOLDER}" \
                 genomeSize="${genomesize}" \
                 minReadLength=1200 \
-               -nanopore "$INFOLDER"/*.fastq.gz
-                #${trim} 
+               -nanopore "$FASTQ"
         else
             echo The file "${OUTFOLDER}"/assembly.*.fasta already exist
         fi 

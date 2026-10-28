@@ -24,8 +24,7 @@ set -o nounset                              # Treat unset variables as an error
 input=$1        #fastq.gz file read (HiFi on nano-hq)
 ploidy=$2       #an integer : either 1 or 2
 kmer_length=$3  #generally use the size of 21
-LENGTH=$4       #genome size in bp 
-datatype=$5     #hifi or ONT
+datatype=$4     #hifi or ONT
 #===============================================================================
 source .cpu_mem
 
@@ -44,7 +43,6 @@ then
     fi
 fi
 #===============================================================================
-
 # - genomescope2:
 if [ ! -s "$outdir"/linear_plot.png ] 
 then

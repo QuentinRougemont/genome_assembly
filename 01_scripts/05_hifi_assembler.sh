@@ -1,7 +1,7 @@
 #!/bin/bash
 #===============================================================================
 #          FILE: 05_hifi_assembler.sh
-#         USAGE: ./05_hifi_assembler.sh <genome> <assembler> <database> <buscotype> <genomesize> 
+#         USAGE: ./05_hifi_assembler.sh <FASTQ> <assembler> <database> <buscotype> <genomesize> 
 #   DESCRIPTION:  microscript to extract hifi data from bam
 # 
 #       OPTIONS: ---
@@ -25,7 +25,7 @@ if [ $# -ne 5 ]; then
       \n\t optionally: \n"
     exit 1
 else
-    genome=$1
+    FASTQ=$1
     assembler=$2
     database=$3
     buscotype=$4
@@ -34,9 +34,8 @@ fi
 
 source .cpu_mem
 #===============================================================================
-BASE=$(basename "${genome%%.*}" ) 
+BASE=$(basename "${FASTQ%%.*}" ) 
 #extension="${genome##*.}"
-
 
 OUTFOLDER=05_"${BASE}"_"${assembler}" 
 if [ ! -d "${OUTFOLDER}" ]; 
@@ -45,9 +44,7 @@ then
 else
     echo The folder "${OUTFOLDER}" is already created
 fi 
-
 #===============================================================================
-
 #  --- HiFiasm option ----
 # uncomment to use one of them
 # default option are run alternatively
@@ -59,7 +56,6 @@ fi
 #h="--hom-cov 1"
 #l="l--l0" # can be used for low het genome 
 
-
 if [[ "${assembler,,}" == "hifiasm" ]]
 then
     if [ ! -s "${OUTFOLDER}"/"${BASE}".bp.p_ctg.fasta ] 
@@ -67,7 +63,7 @@ then
         #running hifiasm
         hifiasm -o "${OUTFOLDER}"/"${BASE}" \
             -t "$NCPUS_HIFIASM" \
-            "${genome}" 2>&1 \
+            "${FASTQ}" 2>&1 \
             | tee LOG/log."${BASE}"_"${assembler}"
            # "$s" "$O" "$D" "$N" "$P" "$h" "$l" \
     
@@ -82,14 +78,15 @@ then
     assembly="${OUTFOLDER}"/"${BASE}".bp.p_ctg.fasta 
 
 elif [[ "${assembler,,}" == "canu" ]]; then
+    size=$(echo $(( $genomesize / 1000000 |bc -l )) )
     if [ ! -s "${OUTFOLDER}"/"${BASE}".contigs.fasta ] 
     then
         #run canu 
         canu -p "assembly" \
             -d "${OUTFOLDER}" \
-            genomeSize="$genomesize"m \
+            genomeSize="$size"m \
             -pacbio-hifi \
-            "${genome}" 
+            "${FASTQ}" 
     else
        echo "canu output already present"
     fi 
@@ -102,8 +99,7 @@ then
     if [ ! -s "${OUTFOLDER}"/assembly.fasta ] 
     then
        #running flye
-       flye --pacbio-hifi "${genome}" \
-            --genome-size "$genomesize"m \
+       flye --pacbio-hifi "${FASTQ}" \
             -o "${OUTFOLDER}" \
             -t "$NCPUS_FLYE"
     else

@@ -20,13 +20,13 @@
 # This script is responsible for assembling genomic data and evaluate its quality
 # All associated scripts are located in the folder: 01_scripts
 
-# ./FlowAssembly.sh -g <genome> -t <type> -s <genomesize(mbp)> -a <assembler> -d <busco_database> -T <trimm_ONT_(YES/NO)> #optional: -b <Busco_type> -N <NCPU>
-# Exemple ONT  : ./FlowAssembly.sh -g pod5folder/ -p myspecies -t nano-hq -s 30 -a flye -d basidiomycota -T NO -b metaeuk -N 20 -m "model"
-# Exemple HiFi : ./FlowAssembly.sh -g hifi.bam   -t hifi        -s 30 -a hifiasm -d basidiomycota -T NO -b miniprot -N 10
-# Exemple ONT :  ./FlowAssembly.sh -g ont.fq.gz  -t nano-raw    -s 30 -a flye    -d basidiomycota -T YES -b miniprot -N 10 -i path/to/illumina_folder/
+# ./FlowAssembly.sh -g <genome> -t <type> -s <genomesize( bp)> -a <assembler> -d <buscodatabase> -T <trimm_ONT_(YES/NO)> #optional: -b <Busco_type> -N <NCPU>
+# Exemple ONT (R10)  : ./FlowAssembly.sh -g pod5folder/ -t nano-hq  -s 30000000 -a flye    -l 1 -d microbotryomycetes_odb12.2 -T NO  -b miniprot -N 20 -p myspecies -m dna_r10.4.1_e8.2_400bps_sup@v5.2.0 -c YES
+# Exemple HiFi       : ./FlowAssembly.sh -g hifi.bam    -t hifi     -s 30000000 -a hifiasm -l 1 -d basidiomycota              -T NO  -b miniprot -N 10
+# Exemple ONT        : ./FlowAssembly.sh -g ont.fq.gz   -t nano-raw -s 30000000 -a flye    -l 1 -d basidiomycota              -T YES -b meteauk -N 10 -i path/to/illumina_folder/
 
 eval "$(conda shell.bash hook)"
-conda activate assembly_env2
+conda activate assembly_env
 
 ############################################################
 # Help                                                     #
@@ -45,10 +45,10 @@ Help()
    echo "options:"
    echo " -h|--help: Print this Help."
    echo " -g|--genome: <fastq/bam/pod5> file name (full path) "
-   echo " -t|--type: <data type>:  nano-hq/nano-raw/hifi "
+   echo " -t|--datatype: <data type>:  nano-hq/nano-raw/hifi "
    echo " -s|--genomesize : <genome size>: INTEGER: size of the genome in bp" 
    echo " -a|--assembler: <assembler>: Assembler type : canu flye (shasta raven) => ONT or canu hifiasm => HIFI"
-   echo " -d|--datatype: <database>: For Busco (can be obtained through busco --list-dataset)"
+   echo " -d|--datatype: <buscodatabase>: For Busco (can be obtained through busco --list-dataset)"
    echo " -b|--buscotype: <buscotype>: Type for Busco : augustus meteuk miniprot"
    echo " -l|--ploidy : <ploidy>: INTEGER: 1 or 2 for ploidy levels for genomescope"
    echo "ONT specific OPTION:"
@@ -72,14 +72,14 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -g  | --genome) genome="$2" ; 
         echo -e "full path to input reads is ***${genome}*** \n" >&2;;
-    -t  | --type) type="$2" ; 
-        echo -e "data is of type ***${type}*** \n" >&2;;
+    -t  | --datatype) datatype="$2" ; 
+        echo -e "data is of type ***${datatype}*** \n" >&2;;
     -s  | --genomesize) genomesize="$2" ; 
-        echo -e "genome size is ***${genomesize}*** \n" >&2;;
+        echo -e "genome size is ***${genomesize} bp*** \n" >&2;;
     -a  | --assembler) assembler="$2" ; 
         echo -e "the assembler to be used will be ***${assembler}*** \n" >&2;;
-    -d  | --database) database="$2" ; 
-        echo -e "lineage databse for busco is ***${database}*** \n" >&2;;
+    -d  | --buscodatabase) buscodatabase="$2" ; 
+        echo -e "lineage databse for busco is ***${buscodatabase}*** \n" >&2;;
     -b  | --buscotype  ) buscotype="$2"   ; 
         echo -e "genome finder for busco will be ***${buscotype}*** \n" >&2;;
     -l | --ploidy ) ploidy="$2" ;
@@ -108,19 +108,15 @@ while [ $# -gt 0 ] ; do
    shift
 done 
 
-if [ -z "${genome}" ] || [ -z "${type}" ] || [ -z "${genomesize}" ] || 
-    [ -z "${assembler}" ] || [ -z "${database}" ]  ; then
+if [ -z "${genome}" ] || [ -z "${datatype}" ] || [ -z "${genomesize}" ] || 
+    [ -z "${assembler}" ] || [ -z "${buscodatabase}" ]  ; then
     Help
     exit 2
 fi
 
-#BASE=$(basename "${genome%%.*}" )
 BASE0=$(basename "${genome}" )
 BASE="${BASE0%%.*}"
-
 extension="${genome##*.}"
-
-echo BASE name is "$BASE"
 
 #set buscotype to miniprot by default:
 if [ -z "$buscotype" ]
@@ -128,15 +124,14 @@ then
     buscotype="miniprot"
 fi
 
-
 # Verification of the data "type" 
-if [[ "${type,,}" != "hifi" ]] && [[ "${type,,}" != "nano-hq" ]] && 
-    [[ "${type,,}" != "nano-raw" ]]; then
+if [[ "${datatype,,}" != "hifi" ]] && [[ "${datatype,,}" != "nano-hq" ]] && 
+    [[ "${datatype,,}" != "nano-raw" ]]; then
   echo "Invalid read type. Should be nano-hq or nano-row or HIFI."
   exit 1
 fi
 
-if [[ "${type,,}" == "hifi" ]]; then
+if [[ "${datatype,,}" == "hifi" ]]; then
 echo "Run scripts for Hifi type"
     if [[ "${assembler,,}" != "hifiasm" ]]  && 
         [[ "${assembler,,}" != "flye" ]] && [[ "${assembler,,}" != "canu" ]]; then
@@ -166,7 +161,7 @@ echo "Run scripts for Hifi type"
     kmer_length=21
     echo -e "genome is $genome" 
     chmod +x ./01_scripts/04_jellyfish
-    if ! ./01_scripts/04_jellyfish "${genome}" "${ploidy}" "${kmer_length}" "${genomesize}" "${type}" ; then
+    if ! ./01_scripts/04_jellyfish "${genome}" "${ploidy}" "${kmer_length}"  "${datatype}" ; then
         echo "error Jellyfish failed"
         exit 1
     else 
@@ -181,7 +176,7 @@ echo "Run scripts for Hifi type"
         if ! ./01_scripts/05_hifi_assembler.sh \
             "${genome}" \
             "${assembler}" \
-            "${database}" \
+            "${buscodatabase}" \
             "${buscotype}" \
             "$NCPU"
         then
@@ -200,7 +195,7 @@ echo "Run scripts for Hifi type"
         if ! ./01_scripts/05_hifi_assembler.sh \
             "${genome}" \
             "${assembler}" \
-            "${database}" \
+            "${buscodatabase}" \
             "${buscotype}" \
             "${genomesize}"
         then
@@ -219,7 +214,7 @@ echo "Run scripts for Hifi type"
         if ! ./01_scripts/05_hifi_assembler.sh \
             "${genome}" \
             "${assembler}" \
-            "${database}" \
+            "${buscodatabase}" \
             "${buscotype}" \
             "${genomesize}"
         then
@@ -243,7 +238,7 @@ echo "Run scripts for Hifi type"
     NCPU=10
     SPECIES="" #will be ignore
     chmod +x ./01_scripts/07_minimap.sh
-    if ! ./01_scripts/07_minimap.sh "${assembly}" "${READS}" "${type}" "${OUTFOLDER}" "${SPECIES}" "${NCPU}"
+    if ! ./01_scripts/07_minimap.sh "${assembly}" "${READS}" "${datatype}" "${OUTFOLDER}" "${SPECIES}" "${NCPU}"
     then
         echo "error minimap and samtools failed"
         echo "check your data"
@@ -314,7 +309,7 @@ echo "Run scripts for Hifi type"
     fi
 
 # Run scripts for ONT type
-elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
+elif [[ "${datatype,,}" == "nano-hq" ]] ||  [[ "${datatype,,}" == "nano-raw" ]] ; then
     # Verification assembler type
     if [[ "${assembler,,}" != "canu" ]] && [[ "${assembler,,}" != "flye" ]] && 
         [[ "${assembler,,}" != "shasta" ]] && [[ "${assembler,,}" != "raven" ]]; then
@@ -324,7 +319,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
 
     echo "Processing ONT type"
     run_basecalling="$call" #YES or NO
-    if [[ "${type,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "YES" ]] ; then
+    if [[ "${datatype,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "YES" ]] ; then
         echo "data are nano-hq" 
         echo "will perform basecalling with dorado"
         
@@ -350,10 +345,10 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
         kmer_length=21
         READS="02_raw/$OUTPUTNAME.fastq.gz"
         chmod +x ./01_scripts/04_jellyfish
-        ./01_scripts/04_jellyfish "${READS}" "${ploidy}" "${kmer_length}" "${genomesize}" "${type}"
+        ./01_scripts/04_jellyfish "${READS}" "${ploidy}" "${kmer_length}" "${genomesize}" "${datatype}"
 
 
-    elif [[ "${type,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "NO" ]] ; then
+    elif [[ "${datatype,,}" == "nano-hq" ]] && [[  "$run_basecalling" = "NO" ]] ; then
 	    
         if [[ "$trimm" = "YES" ]] ; then 
             echo -e "\n-------------------------------"
@@ -402,9 +397,9 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     if ! bash  01_scripts/06_ONT_assembler.sh "$READS" \
             "${OUTFOLDER}" \
             "${genomesize}" \
-            "${type}" \
+            "${datatype}" \
             "${assembler}" \
-            "${database}"  \
+            "${buscodatabase}"  \
             "${buscotype}" \
             "${NCPU}" 
     then
@@ -430,7 +425,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
 
     echo -e "\n\n assembly is $assembly \n\n"
 
-    if [[ "${type,,}" == "nano-raw" ]]
+    if [[ "${datatype,,}" == "nano-raw" ]]
     then
         echo "data are nano-raw" 
         echo "will perform polishing with medaka"
@@ -443,7 +438,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
         if ! bash  01_scripts/08_medaka.sh "${assembly}" \
                 "${READS}" \
                 "${OUTFOLDER}" \
-                "${database}" \
+                "${buscodatabase}" \
                 "${buscotype}" \
                 "${NCPU}" 
         then
@@ -502,7 +497,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
         if ! bash  01_scripts/13_pilon.sh "${INPUTGENOME}" \
             "${BAMFOLDER}" \
             "${OUTFOLDER}" \
-            "${database}" \
+            "${buscodatabase}" \
             "${buscotype}" 
         then
             echo "erreur pilon polish failed"
@@ -534,7 +529,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
         exit 1
     fi
 
-   if [[ "${type,,}" == "nano-hq" ]]
+   if [[ "${datatype,,}" == "nano-hq" ]]
    then
        echo "data are nano-hq"
        echo "setting up path to file for meryl"
@@ -582,7 +577,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     SPECIES=$species
     NCPU=10
     chmod +x ./01_scripts/07_minimap.sh
-    if ! ./01_scripts/07_minimap.sh "${assembly}" "${ONTREADS}" "${type}" "${OUTFOLDER}" "${SPECIES}" "${NCPU}"
+    if ! ./01_scripts/07_minimap.sh "${assembly}" "${ONTREADS}" "${datatype}" "${OUTFOLDER}" "${SPECIES}" "${NCPU}"
     then
         echo "error minimap and samtools failed"
         echo "check your data"
@@ -594,7 +589,7 @@ elif [[ "${type,,}" == "nano-hq" ]] ||  [[ "${type,,}" == "nano-raw" ]] ; then
     fi
 
     #run craq
-    if [[ "${type,,}" == "nano-raw" ]]
+    if [[ "${datatype,,}" == "nano-raw" ]]
     then
     
         echo -e "\n-------------------------------"

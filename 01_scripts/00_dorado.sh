@@ -58,4 +58,4 @@ samtools fastq 02_raw/nanohq.calls.bam |gzip >> 02_raw/"$OUTPUTNAME".fastq.gz
 #===============================================================================
 #TO DO eventually: implement herro for read correction
 #Unfortunatelly takes for ever with huge amount of memory 
-#dorado correct  02_raw/"$OUTPUTNAME".fastq.gz >  01_raw/"$OUTPUTNAME".corrected.fasta
+dorado correct  02_raw/"$OUTPUTNAME".fastq.gz >  01_raw/"$OUTPUTNAME".corrected.fasta

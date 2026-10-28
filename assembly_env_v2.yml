@@ -8,6 +8,7 @@ channels:
     #channel_priority: true
 dependencies:
   - minimap2=2.31
+  - minibwa=0.7
   - samtools=1.23.1
   - htslib=1.23.1
   - bcftools
@@ -28,14 +29,14 @@ dependencies:
   - pbtk=3.5.0
   - raven-assembler=1.8.3
   - shasta=0.12.0
-  - compleasm=0.2.6
+  - compleasm=0.2.10
   - r-ggplot2=3.5.1
   - r-data.table=1.15.4
   - r-ggforce=0.4.2
   - r-dplyr=1.1.4
   - pandas=2.3.1
   - ncbi-fcs-gx=0.5.5
-  - singularity=3.8.7
+  - singularity=3.8.6
     #shitty packages (installed separately):
 #  - busco=6.0.0
 #  - medaka=2.1.0
