@@ -40,7 +40,7 @@ else
     echo -e "output folder is $OUTFOLDER\n"
     echo -e "\n"
 fi
-source .cpu_mem
+source cpu_mem
 #===============================================================================
 # create architecture and checks 
 BASE=$(basename "${READS%%.*}" ) 

@@ -32,7 +32,7 @@ else
     genomesize=$5
 fi
 
-source .cpu_mem
+source cpu_mem
 #===============================================================================
 BASE=$(basename "${FASTQ%%.*}" ) 
 #extension="${genome##*.}"

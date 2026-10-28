@@ -32,7 +32,7 @@ else
     database=$4
     buscotype=$5
 fi
-source .cpu_mem
+source cpu_mem
 #===============================================================================
 if [ ! -e "$OUTFOLDER" ]; then
     # Create a directory for Pilon output

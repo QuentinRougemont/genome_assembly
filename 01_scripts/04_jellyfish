@@ -26,7 +26,7 @@ ploidy=$2       #an integer : either 1 or 2
 kmer_length=$3  #generally use the size of 21
 datatype=$4     #hifi or ONT
 #===============================================================================
-source .cpu_mem
+source cpu_mem
 
 # - jellyfish 
 outdir=04_jellyfish

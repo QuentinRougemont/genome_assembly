@@ -36,8 +36,7 @@ else
     database=$6
     buscotype=$7
 fi
-source .cpu_mem
-
+source cpu_mem
 #===============================================================================
 echo -e "\n\nrunning ONT genome assembly"
 echo "INFOLDER is $INFOLDER"
@@ -63,17 +62,15 @@ if [[ "${assembler,,}" == "flye" ]]; then
             flye --nano-hq  "$FASTQ" \
                 --genome-size "$genomesize" \
                 -o "${OUTFOLDER}" \
-                -t "$NCPU_FLYE"
+                -t "$NCPUS_FLYE"
         else
             echo 
             "error unknown sequencing type"
             exit
         fi
-
     else
         echo The file "${OUTFOLDER}"/assembly.fasta already exist
     fi 
-
     #declare assembly for later:
     assembly="${OUTFOLDER}"/assembly.fasta
 
