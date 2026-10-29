@@ -57,6 +57,10 @@ else
 fi
 Rscript 01_scripts/Rscripts/plot_len_gc.R  "$OUTFOLDER"/"$BASE".len.gc.gz
 
+awk '{s+=$2}END{print "mean read length:\t" s}' > reads.stats 
+awk 'NR==1{min = $2 +0 ; next}{if ($2 < min) min=$2;} END{print "min read length :\t"min}' >> reads.stats.txt
+awk 'NR==1{max = $2 +0 ; next}{if ($2 > max) max=$2;} END{print "max read length :\t"max}' >> reads.stats.txt
+
 
 #get a sense of expected depth based on total length and expected length:
 expdp=$(zcat  "$OUTFOLDER"/"$BASE".len.gc.gz|awk -v n="$BASE" -v l="$LENGTH" '{s+=$2}END{print s/l}' )
