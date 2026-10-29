@@ -3,7 +3,6 @@
 #          FILE: flow_assembly.sh
 #         USAGE: ./flow_assembly.sh opt1 ... optN
 #   DESCRIPTION: assembling genome + quality check + etc
-# 
 #       OPTIONS: ---
 #  REQUIREMENTS: Hifi only or nano-hq only or nano-raw + illumina
 #          BUGS: ---
@@ -17,14 +16,6 @@
 # All associated scripts are located in the folder: 01_scripts
 
 source config
-
-#check if config file variables are properly set:
-#if  [ -z "${datatype}" ]  || [ -z "${genomesize}" ] || 
- #   [ -z "${assembler}" ] || [ -z "${buscodatabase}" ]  ; then
- #   Help
- #   exit 2
-#fi
-
 # Global variables
 DEPENDS="--dependency=afterok:"
 SCRIPTPATH="./01_scripts/SLURM/"
@@ -65,7 +56,6 @@ if [[ "${datatype,,}" == "hifi" ]]; then
         assembly=05_"${BASE}"_"${assembler}"/assembly.contigs.fasta
     fi
 fi
-
 if [[ "${datatype,,}" == "nano-hq" ]]; then
     if [[ "${assembler,,}" != "flye" ]] && [[ "${assembler,,}" != "canu" ]]; then
       echo "Invalid assembler type. Should be canu, flye "
@@ -89,24 +79,17 @@ if [[ "${datatype,,}" == "nano-hq" ]]; then
     elif  [[ "${assembler,,}" == "canu" ]] ; then
         assembly=05_"${BASE}"_"${assembler}"/assembly.contigs.fasta
     fi
+fi
 
-
- fi
-
- #generic stuff -- Common to HiFi/ONT 
+#generic stuff -- Common to HiFi/ONT 
 p4=$(sbatch "$DEPENDS"$p3 "$SCRIPTPATH"/07_minimap.sh "${assembly}"  |awk '{print $4}' )
 
-#run awk to get length 
-awk '/^>/ {if (seqlen){print seqlen}
-     printf(">%s\t",substr($0,2)) ;seqlen=0;next;} 
-    { seqlen += length($0)}END{print seqlen}' "$assembly"  > assembly_length.txt  
-    
-total_len=$(awk '{sum+=$2}END{print sum}' assembly_length.txt ) 
-
-    #run merryl here
-p5=$(sbatch "$DEPENDS"$p4 11_merryl.sh  "$BASE" "$FASTQ" "$total_len" | awk '{print $4}' ) 
-p6=$(sbatch "$DEPENDS"$p5 12_merqury.sh "$BASE" "$assembly" "$assembler" )
+#run merryl here
+p5=$(sbatch "$DEPENDS"$p4 "$SCRIPTPATH"/11_merryl.sh  "$BASE" "$FASTQ" "$total_len" | awk '{print $4}' ) 
+p6=$(sbatch "$DEPENDS"$p5 "$SCRIPTPATH"/12_merqury.sh "$BASE" "$assembly" "$assembler" )
 exit     
+
+#then copy data to final folder and make a synthetic table
 
 # TO IMPLEMENT:
 ##for HiFi only no short reads are available:

@@ -113,6 +113,11 @@ else
     echo "Invalid assembler Should be canu/flye/hifiasm."
     exit 1
 fi
+#run awk to get length 
+awk '/^>/ {if (seqlen){print seqlen}
+     printf(">%s\t",substr($0,2)) ;seqlen=0;next;} 
+    { seqlen += length($0)}END{print seqlen}' "$assembly"  > assembly_length.txt  
+    
 
 #===============================================================================
 #run quast directly here:

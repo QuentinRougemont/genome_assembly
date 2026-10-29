@@ -123,6 +123,11 @@ elif [[ "${assembler,,}" == "raven" ]];then
     fi
     assembly="${OUTFOLDER}"/assembly.fasta
 fi
+#run awk to get length 
+awk '/^>/ {if (seqlen){print seqlen}
+     printf(">%s\t",substr($0,2)) ;seqlen=0;next;} 
+    { seqlen += length($0)}END{print seqlen}' "$assembly"  > assembly_length.txt  
+    
 
 #===============================================================================
 echo -e "\n-------------------------------"

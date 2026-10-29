@@ -15,7 +15,7 @@ set -o nounset                              # Treat unset variables as an error
 #===============================================================================
 
 source config #a filer with genomesize, data type, fastq/pod5, basename etc ploidy
-source .cpu_mem
+source cpu_mem
 echo "assembler is "${assembler}" "
 
 assembly=$1         #full path to the new genome assembly (fasta) file
