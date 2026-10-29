@@ -116,6 +116,7 @@ fi
 
 #some post-proccessing:
 file=column1.5.tmp
+samtools faidx "${ASSEMBLY}"
 fai="${ASSEMBLY}".fai
 cut -f 3 $file |sort |uniq -c > ReadsCount
 grep -v "*" ReadsCount > tmp ; mv tmp ReadsCount
@@ -141,3 +142,7 @@ grep -Ff <(cut -f2 prop_read.0.above.80percent) <(cut -f 1-2 $fai) > length_prop
 grep -Ff <(cut -f2 prop_read.0.above.80percent) mean_dp*.txt > depth_prop_read.0.above.80percent
 
 rm column1.5.tmp
+
+mv ReadsCound "$OUTFOLDER"
+mv length_prop_read.0.above.80percent "$OUTFOLDER"
+mv depth_prop_read.0.above.80percent "$OUTFOLDER"

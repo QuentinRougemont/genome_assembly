@@ -41,10 +41,8 @@ then
     echo "please install it before doing anything else"
     exit 1
 fi
-
 #===============================================================================
 #download model:
-#dorado download --model sup@latest --data pod5/
 dorado download --model "$MODEL" 
 #actual basecall:
 mkdir 02_raw 2>/dev/null
@@ -52,8 +50,7 @@ dorado basecaller "$MODEL" "$INPUT" > 02_raw/nanohq.calls.bam
 
 #kitname="SQK-NBD114-24"
 #dorado basecaller --kit-name "kitname"  "$MODEL" pod5 > 02_raw/"$kitname".bam
-
-samtools fastq 02_raw/nanohq.calls.bam |gzip >> 02_raw/"$OUTPUTNAME".fastq.gz
+samtools fastq 02_raw/nanohq.calls.bam |bgzip >> 02_raw/"$OUTPUTNAME".fastq.gz
 
 #===============================================================================
 #TO DO eventually: implement herro for read correction

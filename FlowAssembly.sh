@@ -149,6 +149,11 @@ echo "Run scripts for Hifi type"
             echo "Excract Hifi done"
             genome=02_FilteredHifi/"${BASE}".fastq.gz
         fi
+    else
+        mkdir 02_FilteredHifi ; cd 02_FilderedHifi
+        ln -s "${genome}" .
+        cd ../
+        genome=02_FilteredHifi/"${BASE}".fastq.gz
     fi
 
     echo -e "\nplotting length of read and gc content\n" 
@@ -533,7 +538,7 @@ elif [[ "${datatype,,}" == "nano-hq" ]] ||  [[ "${datatype,,}" == "nano-raw" ]] 
    then
        echo "data are nano-hq"
        echo "setting up path to file for meryl"
-       READS="02_trimmed_ONT/*gz"
+       READS="02_raw/*gz"
        BASE="$BASE"
    else
        echo "assuming reads are nano-raw"
@@ -570,8 +575,12 @@ elif [[ "${datatype,,}" == "nano-hq" ]] ||  [[ "${datatype,,}" == "nano-raw" ]] 
     echo -e "\n-------------------------------"
 
     
-    #ONTREADS="02_trimmed_ONT/input.trimmed.fastq.gz"
-    ONTREADS="02_trimmed_ONT/*.fastq.gz"
+    if [[ "${datatype,,}" == "nano-raw" ]]
+    then
+        ONTREADS="02_trimmed_ONT/*.fastq.gz"
+    else
+        ONTREADS="02_raw/*fastq.gz"
+    fi
 
     OUTFOLDER=07_minimap_"$assembler"
     SPECIES=$species
