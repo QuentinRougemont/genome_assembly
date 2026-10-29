@@ -53,8 +53,9 @@ if [[ "${datatype,,}" == "hifi" ]]; then
     else 
        p1=$(sbatch "$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh ${FASTQ} "${genomesize}"  | awk '{print $4}' )
     fi
-
-    p2=$(sbatch "$DEPENDS"$p1 "$SCRIPTPATH"/05_hifi_assembler.sh "${FASTQ}" |awk '{print $4}' )
+    
+    p2=$(sbatch "$DEPENDS"$p1 "$SCRIPTPATH"/04_jellyfish ${FASTQ}         |awk '{print $4}' )
+    p3=$(sbatch "$DEPENDS"$p2 "$SCRIPTPATH"/05_hifi_assembler.sh "${FASTQ}" |awk '{print $4}' )
 
     if [[ "${assembler,,}" == "hifiasm" ]] ; then
         assembly=05_"${BASE}"_"${assembler}"/hifi.bp.p_ctg.fasta
@@ -78,8 +79,9 @@ if [[ "${datatype,,}" == "nano-hq" ]]; then
     else 
        p1=$(sbatch "$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh "${FASTQ}" "${genomesize}"  | awk '{print $4}' )
     fi
-     
-    p2=$(sbatch "$DEPENDS"$p1 "$SCRIPTPATH"/06_ONT_assembler.sh "${FASTQ}" |awk '{print $4}' )
+
+    p2=$(sbatch "$DEPENDS"$p1 "$SCRIPTPATH"/04_jellyfish ${FASTQ}         |awk '{print $4}' )
+    p3=$(sbatch "$DEPENDS"$p2 "$SCRIPTPATH"/06_ONT_assembler.sh "${FASTQ}" |awk '{print $4}' )
     if [[ "${assembler,,}" == "hifiasm" ]] ; then
         assembly=05_"${BASE}"_"${assembler}"/hifi.bp.p_ctg.fasta
     elif  [[ "${assembler,,}" == "flye" ]] ; then
@@ -92,7 +94,7 @@ if [[ "${datatype,,}" == "nano-hq" ]]; then
  fi
 
  #generic stuff -- Common to HiFi/ONT 
-p3=$(sbatch "$DEPENDS"$p2 "$SCRIPTPATH"/07_minimap.sh "${assembly}"  |awk '{print $4}' )
+p4=$(sbatch "$DEPENDS"$p3 "$SCRIPTPATH"/07_minimap.sh "${assembly}"  |awk '{print $4}' )
 
 #run awk to get length 
 awk '/^>/ {if (seqlen){print seqlen}
@@ -102,8 +104,8 @@ awk '/^>/ {if (seqlen){print seqlen}
 total_len=$(awk '{sum+=$2}END{print sum}' assembly_length.txt ) 
 
     #run merryl here
-p4=$(sbatch "$DEPENDS"$p3 11_merryl.sh  "$BASE" "$FASTQ" "$total_len" | awk '{print $4}' ) 
-p5=$(sbatch "$DEPENDS"$p4 12_merqury.sh "$BASE" "$assembly" "$assembler" )
+p5=$(sbatch "$DEPENDS"$p4 11_merryl.sh  "$BASE" "$FASTQ" "$total_len" | awk '{print $4}' ) 
+p6=$(sbatch "$DEPENDS"$p5 12_merqury.sh "$BASE" "$assembly" "$assembler" )
 exit     
 
 # TO IMPLEMENT:

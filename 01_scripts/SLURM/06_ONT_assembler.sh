@@ -1,8 +1,8 @@
 #!/bin/bash - 
 #SBATCH --account=youraccount
 #SBATCH --time=48:00:00
-#SBATCH --job-name=jellyfish
-#SBATCH --output=log_jelly-%J.out
+#SBATCH --job-name=assembly
+#SBATCH --output=log_assembly-%J.out
 #SBATCH --mem=30G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -13,8 +13,11 @@ cd $SLURM_SUBMIT_DIR
 #===============================================================================
 set -o nounset                              # Treat unset variables as an error
 #===============================================================================
+#activate any conda env if necessary
+conda activate assembly_env
+
 source config #a filer with genomesize, data type, fastq/pod5, basename etc ploidy
-source .cpu_mem
+source cpu_mem
 
 #parameter as argument:
 INFOLDER=$1 #full path to folder containing fastq.gz
@@ -28,7 +31,7 @@ echo "genomesize will be "$genomesize" bp "
 echo "data type will be "$datatype" "
 
 # Test if output directory exist:
-OUTFOLDER=05_"${species}"_"${assembler}"
+OUTFOLDER=05_"${SPECIES}"_"${assembler}"
 if [ ! -d "${OUTFOLDER}" ];
 then
     mkdir "${OUTFOLDER}" 2>/dev/null

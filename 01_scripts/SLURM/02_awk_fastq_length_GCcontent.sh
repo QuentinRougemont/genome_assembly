@@ -10,8 +10,10 @@
 # Move to directory where job was submitted
 cd $SLURM_SUBMIT_DIR
 #===============================================================================
-set -o nounset                              # Treat unset variables as an error
+#set -o nounset                              # Treat unset variables as an error
 #===============================================================================
+#activate any conda env if necessary
+conda activate assembly_env
 
 #source config #a filer with genomesize, data type, fastq/pod5, basename etc 
 

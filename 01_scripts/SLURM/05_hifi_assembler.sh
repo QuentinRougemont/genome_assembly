@@ -13,9 +13,11 @@ cd $SLURM_SUBMIT_DIR
 #===============================================================================
 set -o nounset                              # Treat unset variables as an error
 #===============================================================================
+#activate any conda env if necessary
+conda activate assembly_env
 
 source config #a filer with genomesize, data type, fastq/pod5, basename etc ploidy
-source .cpu_mem
+source cpu_mem
 FASTQ=$1 #full path to the fastq(.gz) file
 
 echo "assembler will be ${assembler}"

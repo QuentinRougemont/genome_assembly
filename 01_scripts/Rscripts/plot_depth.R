@@ -23,12 +23,18 @@ inputfile <- paste0("zcat ", input)
 #faste file processing
 dp <- fread(inputfile)
 
-m  <- dp %>% group_by(V1) %>% summarise(meanDepth = mean(V3), medDepth = median(V3) , std=sd(V3))
+m  <- dp %>% group_by(V1) %>%
+        summarise(meanDepth = round(mean(V3),5),
+                  medDepth =  round(median(V3),5) ,
+                  std= round(sd(V3),5) )
+
 summary(m$meanDepth)
 median(dp$V3)
 
 input2 <- gsub('.dp.gz','', basename(input))
-write.table(m, paste0('mean_dp.',input2,'.txt'), 
+input3 <- gsub('.dp.gz','',input)
+
+write.table(m, paste0(input3, '.summary_depth.txt'), 
             quote = F,
             row.names = F,
             col.names = c('contig','meanDepth','medianDepth','sdDepth'),

@@ -13,6 +13,8 @@ cd $SLURM_SUBMIT_DIR
 #===============================================================================
 set -o nounset                              # Treat unset variables as an error
 #===============================================================================
+#activate any conda env if necessary
+conda activate assembly_env
 
 #Purpose: 
 #script to launch dorado in high accuracy mode

@@ -32,6 +32,7 @@ else
     MODEL=$3   #ex: "dna_r10.4.1_e8.2_400bps_sup@v4.3.0"
 fi
 
+source config
 #===============================================================================
 #       Command check
 command='dorado' 
@@ -46,13 +47,26 @@ fi
 dorado download --model "$MODEL" 
 #actual basecall:
 mkdir 02_raw 2>/dev/null
-dorado basecaller "$MODEL" "$INPUT" > 02_raw/nanohq.calls.bam
 
-#kitname="SQK-NBD114-24"
-#dorado basecaller --kit-name "kitname"  "$MODEL" pod5 > 02_raw/"$kitname".bam
-samtools fastq 02_raw/nanohq.calls.bam |bgzip >> 02_raw/"$OUTPUTNAME".fastq.gz
-
+minsize=900000
+bamfile="02_raw"/*.bam
+if [ -s $bamfile ]
+then
+    filesize=$(wc -c <$bamfile )
+else
+    filesize=0
+fi
+#---------  run minimap ----------#
+if [ "$filesize" -lt "$minsize" ]
+then
+    echo "running dorado"
+    dorado basecaller "$MODEL" "$INPUT" > 02_raw/nanohq.calls.bam
+        
+    #kitname="SQK-NBD114-24"
+    #dorado basecaller --kit-name "kitname"  "$MODEL" pod5 > 02_raw/"$kitname".bam
+    samtools fastq 02_raw/nanohq.calls.bam |bgzip >> 02_raw/"$OUTPUTNAME".fastq.gz
+fi
 #===============================================================================
-#TO DO eventually: implement herro for read correction
-#Unfortunatelly takes for ever with huge amount of memory 
-dorado correct  02_raw/"$OUTPUTNAME".fastq.gz >  02_raw/"$OUTPUTNAME".corrected.fasta
+if [ $DORADO_CORRECT = "YES" ] ; then
+    dorado correct  02_raw/"$OUTPUTNAME".fastq.gz >  02_raw/"$OUTPUTNAME".corrected.fasta
+fi
