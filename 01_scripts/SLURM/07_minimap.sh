@@ -1,8 +1,8 @@
 #!/bin/bash - 
-#SBATCH --account=youraccount
+##SBATCH --account=youraccount
 #SBATCH --time=08:00:00
-#SBATCH --job-name=jellyfish
-#SBATCH --output=log_jelly-%J.out
+#SBATCH --job-name=minimap
+#SBATCH --output=log_minimap-%J.out
 #SBATCH --mem=30G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -15,18 +15,23 @@ set -o nounset                              # Treat unset variables as an error
 #===============================================================================
 
 source config #a filer with genomesize, data type, fastq/pod5, basename etc ploidy
-source .cpu_mem
+source cpu_mem
 
 #arguments from config file:
 echo "data type is "${datatype}" "
 echo "assembler is "${assembler}" "
-READS="$fastq"     #from config file
 SPECIES="$species" #only for ONT 
 
 #external arguments
 assembly=$1         #full path to the new genome assembly (fasta) file
+READS=$2
 
-OUTFOLDER=07_minimap_"$assembler"
+if [ "$DORADO_CORRECT" = "NO" ] ; then
+    OUTFOLDER=07_minimap_"$assembler"
+else
+    OUTFOLDER=07_minimap_"$assembler"_corrected
+fi
+
 NCPU=24
 SPECIES="" #will be ignore
 

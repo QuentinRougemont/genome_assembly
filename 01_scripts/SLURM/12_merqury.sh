@@ -1,12 +1,12 @@
 #!/bin/bash - 
 #SBATCH --account=youraccount
-#SBATCH --time=48:00:00
-#SBATCH --job-name=jellyfish
-#SBATCH --output=log_jelly-%J.out
+#SBATCH --time=08:00:00
+#SBATCH --job-name=merqury
+#SBATCH --output=log_merqy-%J.out
 #SBATCH --mem=30G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=48
+#SBATCH --cpus-per-task=8
 
 # Move to directory where job was submitted
 cd $SLURM_SUBMIT_DIR

@@ -1,8 +1,8 @@
 #!/bin/bash - 
 #SBATCH --account=youraccount
 #SBATCH --time=48:00:00
-#SBATCH --job-name=jellyfish
-#SBATCH --output=log_jelly-%J.out
+#SBATCH --job-name=Hifiasm
+#SBATCH --output=log_hifiasm-%J.out
 #SBATCH --mem=30G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -30,7 +30,7 @@ if ! ./01_scripts/05_hifi_assembler.sh \
     "${assembler}" \
     "${buscodatabase}" \
     "${buscotype}" \
-    "$NCPU"
+    "$NCPUS_HIFIASM"
 then
     echo "error hifiasm failed"
     exit 1

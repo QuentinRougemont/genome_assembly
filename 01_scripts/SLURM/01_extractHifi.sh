@@ -1,8 +1,8 @@
 #!/bin/bash - 
-#SBATCH --account=youraccount
+##SBATCH --account=youraccount
 #SBATCH --time=06:00:00
 #SBATCH --job-name=extractHiFi
-#SBATCH --output=log_dorado-%J.out
+#SBATCH --output=log_extract-%J.out
 #SBATCH --mem=20G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1

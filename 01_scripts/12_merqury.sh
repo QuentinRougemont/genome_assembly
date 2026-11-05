@@ -44,7 +44,7 @@ cd 08_meryl/"$genome"_"$assembler" || exit
 if [ ! -s "$genome".qv ] ; then
     echo "running qv"
     rm results_"$genome".meryl 2>/dev/null
-    ln -s ../results_"$genome".meryl . 
+    ln -r -s ../results_"$genome".meryl . 
     merqury.sh results_"$genome".meryl "$f1" "$genome" > log_merqury_"$assembler"
 else
    echo "qv score already computed"

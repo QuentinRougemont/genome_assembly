@@ -473,15 +473,15 @@ This will launch automatically a series of script as details below
 TO BE FILLED
 
 
+
+
 # To Do:
 
-* add contamination checks 
+* add contamination checks [FSC_GX] 
 
-* skip dorado if data already processed (make it optional) 
+* add option for filtration of low quality scaffold [OK]
 
-* add SLURM code 
+* add infos on scaffold with low depth read [OK] and low qual [OK] 
 
-* add option for filtration of low quality scaffold
-
-* add infos on scaffold with low depth read
+* add options for dorado correction an comparison of assembly with/without dorado correction
 

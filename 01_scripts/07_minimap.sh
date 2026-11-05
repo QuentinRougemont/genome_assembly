@@ -41,6 +41,7 @@ else
     echo -e "\n"
 fi
 source cpu_mem
+source config
 #===============================================================================
 # create architecture and checks 
 BASE=$(basename "${READS%%.*}" ) 
@@ -68,7 +69,6 @@ then
         echo "reads are hifi"
         #to create paf file for inspection
         #minimap2 -c -x map-pb  -t "$NCPU" "$ASSEMBLY" "$READS" |gzip  > minimap2.paf.gz
-        #to create same file for depth plot :
         minimap2 -ax map-pb -t "$NCPU" "$ASSEMBLY" "$READS" > "$OUTFOLDER"/"$BASE".sam
         samtools view -Sb "$OUTFOLDER"/"$BASE".sam \
             |samtools sort --threads $NCPU > "$OUTFOLDER"/"$BASE".bam
@@ -78,12 +78,10 @@ then
         Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/"$BASE".dp.gz
         zcat "$OUTFOLDER"/"$BASE".dp.gz \
             |sort -k2,2n \
-            |awk -f 01_scripts/median_col2.awk \
+            |awk -f 01_scripts/median_col3.awk \
             > "$OUTFOLDER"/"$BASE".median.dp.txt 
         rm "$OUTFOLDER"/"$SPECIES".sam 
-
         samtools view "$OUTFOLDER"/"$SPECIES".bam |cut -f 1-5 > column1.5.tmp
-
     else
         echo "assuming reads are ONT"
         echo -e "
@@ -100,49 +98,51 @@ then
         #verify median depth
         zcat "$OUTFOLDER"/"$SPECIES".dp.gz \
             |sort -k2,2n \
-            |awk -f 01_scripts/median_col2.awk \
+            |awk -f 01_scripts/median_col3.awk \
                 > "$OUTFOLDER"/"$SPECIES".median.dp.txt 
         rm "$OUTFOLDER"/"$SPECIES".sam 
-        
         samtools view "$OUTFOLDER"/"$SPECIES".bam |cut -f 1-5 > column1.5.tmp
-
-
-
     fi
 else
     echo "minimap output already here"
 fi
+if [ ! -e "$OUTFOLDER"/column1.5.tmp.gz ] ; then
+    samtools view "$OUTFOLDER"/"$SPECIES".bam |cut -f 1-5 > column1.5.tmp
+elif LC_ALL=C gzip -l  "$OUTFOLDER"/column1.5.tmp.gz | awk 'NR==2 {exit($2!=0)}' ; then
+    samtools view "$OUTFOLDER"/"$SPECIES".bam |cut -f 1-5 > column1.5.tmp
+fi
 
-
-#some post-proccessing:
 file=column1.5.tmp
-samtools faidx "${ASSEMBLY}"
-fai="${ASSEMBLY}".fai
-cut -f 3 $file |sort |uniq -c > ReadsCount
-grep -v "*" ReadsCount > tmp ; mv tmp ReadsCount
-
-rm test 2>/dev/null
-
-for i in $(awk '{print $2}' ReadsCount ) ; do
-        grep $i "$file" \
-        |cut -f 5 \
-        |sort \
-        |uniq -c \
-        |awk -v var=$i '{print var"\t"$0}' >> test
-done
-
-paste ReadsCount <(awk '$3=="0" ' test) \
-        |awk '{print $0"\t"$4/$1}' \
-        |awk '$2 == $3' > read.0
-
-awk '$6>0.8' read.0 > prop_read.0.above.80percent
-grep -Ff <(cut -f2 prop_read.0.above.80percent) <(cut -f 1-2 $fai) > length_prop_read.0.above.80percent
-
-#depth:
-grep -Ff <(cut -f2 prop_read.0.above.80percent) mean_dp*.txt > depth_prop_read.0.above.80percent
-
-rm column1.5.tmp
-
-mv ReadsCound "$OUTFOLDER"
-mv length_prop_read.0.above.80percent "$OUTFOLDER"
-mv depth_prop_read.0.above.80percent "$OUTFOLDER"
+if [ -s "$file"  ] ; then
+   #some post-proccessing:
+   samtools faidx "${ASSEMBLY}"
+   fai="${ASSEMBLY}".fai
+   cut -f 3 $file |sort |uniq -c > ReadsCount
+   grep -v "*" ReadsCount > tmp ; mv tmp ReadsCount
+   
+   rm test 2>/dev/null
+   
+   for i in $(awk '{print $2}' ReadsCount ) ; do
+           grep -w $i "$file" \
+           |cut -f 5 \
+           |sort \
+           |uniq -c \
+           |awk -v var=$i '{print var"\t"$0}' >> test
+   done
+   
+   join -1 2 -2 1 ReadsCount <(awk '$3=="0" ' test )  \
+           |awk '{print $0"\t"$3/$2}'  > read.0
+   
+   source config
+   awk -v var="$threshold" '$5 > var' read.0 > prop_read.0.above."$threshold"
+   grep -w -Ff <(awk '{print $1 }' prop_read.0.above."$threshold"  prop_read.0.above."$threshold") <(cut -f 1-2 $fai) > length_prop_read.0.above."$threshold"
+   
+   #depth:
+   grep -w -Ff <(awk '{print $1 }' prop_read.0.above."$threshold"  prop_read.0.above."$threshold") "$OUTFOLDER"/*summary_depth.txt > depth_prop_read.0.above."$threshold"
+   gzip column1.5.tmp
+   mv column1.5.tmp.gz "$OUTFOLDER"
+   mv ReadsCount "$OUTFOLDER"
+   mv length_prop_read.0.above."$threshold" "$OUTFOLDER"
+   mv depth_prop_read.0.above."$threshold" "$OUTFOLDER"
+   mv test "$OUTFOLDER"
+fi

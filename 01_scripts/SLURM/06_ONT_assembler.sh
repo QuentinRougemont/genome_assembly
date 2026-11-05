@@ -1,5 +1,5 @@
 #!/bin/bash - 
-#SBATCH --account=youraccount
+##SBATCH --account=youraccount
 #SBATCH --time=48:00:00
 #SBATCH --job-name=assembly
 #SBATCH --output=log_assembly-%J.out
@@ -31,7 +31,11 @@ echo "genomesize will be "$genomesize" bp "
 echo "data type will be "$datatype" "
 
 # Test if output directory exist:
-OUTFOLDER=05_"${SPECIES}"_"${assembler}"
+if [ "$DORADO_CORRECT" = "NO" ] ; then
+    OUTFOLDER=05_"${SPECIES}"_"$assembler"
+else
+    OUTFOLDER=05_"${SPECIES}"_"$assembler"_corrected
+fi
 if [ ! -d "${OUTFOLDER}" ];
 then
     mkdir "${OUTFOLDER}" 2>/dev/null
