@@ -37,6 +37,7 @@ dependencies:
   - pandas=2.3.1
   - ncbi-fcs-gx=0.5.5
   - singularity=3.8.6
+  - imagemagick=7.1.2_31
     #shitty packages (installed separately):
 #  - busco=6.0.0
 #  - medaka=2.1.0

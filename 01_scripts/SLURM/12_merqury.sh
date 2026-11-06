@@ -19,17 +19,7 @@ source cpu_mem
 echo "assembler is "${assembler}" "
 
 assembly=$1         #full path to the new genome assembly (fasta) file
-READS="$fastq"      #from config file file
-
-if [[ "${datatype,,}" == "hifi" ]]; then
-   BASE0=$(basename "${READS}" )
-   BASE="${BASE0%%.*}"
-fi
-if [[ "${datatype,,}" == "nano-hq" ]]; then
-   BASE="${species}"
-fi
-
-
+BASE="${SPECIES}"
  #run merqury here
  if ! ./01_scripts/12_merqury.sh "$BASE" "$assembly" "$assembler"
  then

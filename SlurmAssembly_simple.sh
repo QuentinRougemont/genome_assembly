@@ -108,36 +108,33 @@ p5=$(sbatch "$DEPENDS"$p4 "$SCRIPTPATH"/11_merryl.sh  "$BASE" "$FASTQ" "$total_l
 echo "submitting merqury"
 p6=$(sbatch "$DEPENDS"$p5 "$SCRIPTPATH"/12_merqury.sh "$assembly" "$FASTQ"  "$assembler" |awk '{print $4}' )
 
-exit 
-
 if [ "${removeLowQualContigs}" = "YES" ] ; then
    echo "cleaning removing low quality scaffold" 
    echo " "
    p7=$(sbatch "$DEPENDS"$p6 "$SCRIPTPATH"/15_removeLowQual.sh "$assembly" |awk '{print $4}' )
    if [ -z "$taxid" ] && [ -z "$gxdb" ] ; then 
+       p11=$(sbatch "$DEPENDS"$p7 "$SCRIPTPATH"/19_get_summary.sh  "${assembly}" "${taxid}" "${gxdbpath}" |awk '{print $4}' )
+   else
        echo "running fcs-gx" 
        p8=$(sbatch "$DEPENDS"$p7 "$SCRIPTPATH"/16_fcsgx.contam.sh  "${assembly}" "${taxid}"  "${gxdbpath}" |awk '{print $4}' )
        p9=$(sbatch "$DEPENDS"$p8 "$SCRIPTPATH"/17_fcsgx.adapt.sh   "${assembly}" | awk '{print $4}' )
        p10=$(sbatch "$DEPENDS"$p9 "$SCRIPTPATH"/18_clean_genome.sh "${assembly}" "${taxid}" "${gxdbpath}" |awk '{print $4}' )
        p11=$(sbatch "$DEPENDS"$p10 "$SCRIPTPATH"/19_get_summary.sh "${assembly}" "${taxid}" "${gxdbpath}" |awk '{print $4}' )
-   else
-       p11=$(sbatch "$DEPENDS"$p7 "$SCRIPTPATH"/19_get_summary.sh  "${assembly}" "${taxid}" "${gxdbpath}" |awk '{print $4}' )
    fi
 else
    if [ -z "$taxid" ] && [ -z "$gxdb" ] ; then 
    #if [ -v '$taxid' ] || [ -v '$gxdbpath' ]
+       p11=$(sbatch "$DEPENDS"$p6 "$SCRIPTPATH"/19_get_summary.sh "${assembly}" "${taxid}" "${gxdbpath}" |awk '{print $4}' )
+   else
        echo "running fcs-gx" 
        p7=$(sbatch "$DEPENDS"$p6 "$SCRIPTPATH"/16_fcsgx.contam.sh "${assembly}" "${taxid}"  "$gxdbpath" |awk '{print $4}' )
        p8=$(sbatch "$DEPENDS"$p7 "$SCRIPTPATH"/17_fcsgx.adapt.sh  "${assembly}" | awk '{print $4}' )
        p9=$(sbatch "$DEPENDS"$p8 "$SCRIPTPATH"/18_clean_genome.sh "${assembly}" "${taxid}" "${gxdbpath}" |awk '{print $4}' )
        p11=$(sbatch "$DEPENDS"$p9 "$SCRIPTPATH"/19_get_summary.sh "${assembly}" "${taxid}" "${gxdbpath}" |awk '{print $4}' )
-   else
-       p11=$(sbatch "$DEPENDS"$p6 "$SCRIPTPATH"/19_get_summary.sh "${assembly}" "${taxid}" "${gxdbpath}" |awk '{print $4}' )
    fi
 fi
 
 exit     
-
 
 
 

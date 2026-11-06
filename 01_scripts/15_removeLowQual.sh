@@ -28,6 +28,11 @@ else
     FOLDER="07_minimap"_"$assembler"
 fi
 sequence="${FOLDER}"/"length_prop_read.0.above.0.9"
+if [ ! -s "$sequence" ] ; then
+        echo "no sequence to remove"
+        echo "no sequences were removed from draft assembly" >> "$FOLDER"/removed_sequence.info
+        exit
+fi
 
 if [ ! -d 13_cleaned_fasta ] ; 
 then 

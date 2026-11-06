@@ -479,9 +479,4 @@ TO BE FILLED
 
 * add contamination checks [FSC_GX] 
 
-* add option for filtration of low quality scaffold [OK]
-
-* add infos on scaffold with low depth read [OK] and low qual [OK] 
-
-* add options for dorado correction an comparison of assembly with/without dorado correction
-
+* make final report (pdf/html with all stats)
