@@ -69,17 +69,17 @@ then
         echo "reads are hifi"
         #to create paf file for inspection
         #minimap2 -c -x map-pb  -t "$NCPU" "$ASSEMBLY" "$READS" |gzip  > minimap2.paf.gz
-        minimap2 -ax map-pb -t "$NCPU" "$ASSEMBLY" "$READS" > "$OUTFOLDER"/"$BASE".sam
-        samtools view -Sb "$OUTFOLDER"/"$BASE".sam \
-            |samtools sort --threads $NCPU > "$OUTFOLDER"/"$BASE".bam
+        minimap2 -ax map-pb -t "$NCPU" "$ASSEMBLY" "$READS" > "$OUTFOLDER"/"$SPECIES".sam
+        samtools view -Sb "$OUTFOLDER"/"$SPECIES".sam \
+            |samtools sort --threads $NCPU > "$OUTFOLDER"/"$SPECIES".bam
     
-        samtools depth  "$OUTFOLDER"/"$BASE".bam |\
-            gzip > "$OUTFOLDER"/"$BASE".dp.gz
-        Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/"$BASE".dp.gz
-        zcat "$OUTFOLDER"/"$BASE".dp.gz \
+        samtools depth  "$OUTFOLDER"/"$SPECIES".bam |\
+            gzip > "$OUTFOLDER"/"$SPECIES".dp.gz
+        Rscript 01_scripts/Rscripts/plot_depth.R "$OUTFOLDER"/"$SPECIES".dp.gz
+        zcat "$OUTFOLDER"/"$SPECIES".dp.gz \
             |sort -k2,2n \
             |awk -f 01_scripts/median_col3.awk \
-            > "$OUTFOLDER"/"$BASE".median.dp.txt 
+            > "$OUTFOLDER"/"$SPECIES".median.dp.txt 
         rm "$OUTFOLDER"/"$SPECIES".sam 
         samtools view "$OUTFOLDER"/"$SPECIES".bam |cut -f 1-5 > column1.5.tmp
     else

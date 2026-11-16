@@ -1,5 +1,5 @@
 #!/bin/bash
-#TO DO: 
+#TO DO: UPDATE THIS SCRIPT 
 #for all script: declare OUTPUT as external variable to each script, so we can recover them here
 #so no script contain hardcoded path to folder/output
 #add SLURM workflow

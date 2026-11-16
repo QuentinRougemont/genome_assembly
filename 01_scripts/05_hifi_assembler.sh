@@ -33,11 +33,26 @@ else
 fi
 
 source cpu_mem
+source config
 #===============================================================================
 BASE=$(basename "${FASTQ%%.*}" ) 
 #extension="${genome##*.}"
+OUTFOLDER=05_"${SPECIES}"_"${assembler}" 
+if [ "$no_purge" = "YES" ] ;
+then 
+    echo "here"
+    l='l0' ; 
+    OUTFOLDER=05_"${SPECIES}"_"${assembler}"_"$l" 
+fi
+if [ "$keep_primary" = "YES" ] ; 
+then 
+    echo "here2"
+    p='primary' 
+    OUTFOLDER="$OUTFOLDER"_"$p" 
+fi
 
-OUTFOLDER=05_"${BASE}"_"${assembler}" 
+echo -e "OUTFOLDER is $OUTFOLDER"
+
 if [ ! -d "${OUTFOLDER}" ]; 
 then
     mkdir "${OUTFOLDER}" 2>/dev/null 
@@ -54,29 +69,54 @@ fi
 #N="-N 120"
 #P="--purge-max 100"
 #h="--hom-cov 1"
-#l="l--l0" # can be used for low het genome 
+mkdir LOG 2>/dev/null
 
 if [[ "${assembler,,}" == "hifiasm" ]]
 then
-    if [ ! -s "${OUTFOLDER}"/"${BASE}".bp.p_ctg.fasta ] 
+    if [ ! -s "${OUTFOLDER}"/"${SPECIES}".p_ctg.fasta ] 
     then
+        echo "zoulou"
         #running hifiasm
-        hifiasm -o "${OUTFOLDER}"/"${BASE}" \
-            -t "$NCPUS_HIFIASM" \
-            "${FASTQ}" 2>&1 \
-            | tee LOG/log."${BASE}"_"${assembler}"
+	if [ "$no_purge" = "YES" ] && [ "$keep_primary" = "YES" ] ; then
+           hifiasm -o "${OUTFOLDER}"/"${SPECIES}" \
+              -t "$NCPUS_HIFIASM" -l0 --primary \
+              "${FASTQ}" 2>&1 \
+           | tee LOG/log."${SPECIES}"_"${assembler}"
            # "$s" "$O" "$D" "$N" "$P" "$h" "$l" \
-    
+    	elif [ "$no_purge" = "NO" ] && [ "$keep_primary" = "YES" ] ; then
+           hifiasm -o "${OUTFOLDER}"/"${SPECIES}" \
+              -t "$NCPUS_HIFIASM" --primary \
+              "${FASTQ}" 2>&1 \
+           | tee LOG/log."${SPECIES}"_"${assembler}"
+	fi
         #extract fasta:
-        awk '/^S/{print ">"$2;print $3}' "${OUTFOLDER}"/"${BASE}".bp.p_ctg.gfa \
-            > "${OUTFOLDER}"/"${BASE}".bp.p_ctg.fasta
-    else
-       echo "hifiasm output already present"
+        awk '/^S/{print ">"$2;print $3}' "${OUTFOLDER}"/"${SPECIES}".p_ctg.gfa \
+              > "${OUTFOLDER}"/"${SPECIES}".p_ctg.fasta
+    	assembly="${OUTFOLDER}"/"${SPECIES}".p_ctg.fasta 
+    elif [ ! -s "${OUTFOLDER}"/"${SPECIES}".bp.p_ctg.fasta ] 
+    then
+	if [ "$no_purge" = "YES" ] && [ "$keep_primary" = "NO" ] ; then
+           hifiasm -o "${OUTFOLDER}"/"${SPECIES}" \
+              -t "$NCPUS_HIFIASM" -l0 \
+              "${FASTQ}" 2>&1 \
+            | tee LOG/log."${SPECIES}"_"${assembler}"
+          awk '/^S/{print ">"$2;print $3}' "${OUTFOLDER}"/"${SPECIES}".bp.p_ctg.gfa \
+               > "${OUTFOLDER}"/"${SPECIES}".bp.p_ctg.fasta
+    	  assembly="${OUTFOLDER}"/"${SPECIES}".bp.p_ctg.fasta 
+
+	elif [ "$no_purge" = "NO" ] && [ "$keep_primary" = "NO" ] ; then
+           hifiasm -o "${OUTFOLDER}"/"${SPECIES}" \
+              -t "$NCPUS_HIFIASM" \
+              "${FASTQ}" 2>&1 \
+            | tee LOG/log."${SPECIES}"_"${assembler}"
+          awk '/^S/{print ">"$2;print $3}' "${OUTFOLDER}"/"${SPECIES}".bp.p_ctg.gfa \
+               > "${OUTFOLDER}"/"${SPECIES}".bp.p_ctg.fasta
+    	  assembly="${OUTFOLDER}"/"${SPECIES}".bp.p_ctg.fasta 
+        else
+            echo "hifiasm output already present"
+            assembly="${OUTFOLDER}"/"${SPECIES}".p_ctg.fasta 
+	fi
     fi 
-
-    #declare assembly for later:
-    assembly="${OUTFOLDER}"/"${BASE}".bp.p_ctg.fasta 
-
 elif [[ "${assembler,,}" == "canu" ]]; then
     size=$(echo $(( $genomesize / 1000000 |bc -l )) )
     if [ ! -s "${OUTFOLDER}"/"${BASE}".contigs.fasta ] 
@@ -90,7 +130,6 @@ elif [[ "${assembler,,}" == "canu" ]]; then
     else
        echo "canu output already present"
     fi 
-
     #declare assembly for later:
     assembly="${OUTFOLDER}"/"${BASE}".contigs.fasta 
  
@@ -125,7 +164,7 @@ OUTFOLDER="${OUTFOLDER}"/quast
 echo -e "\n-------------------------------"
 echo -e "\trunning quast                  " 
 echo -e "\n-------------------------------"
-if [ ! -s "${OUTFOLDER}"/quast/report.pdf ]
+if [ ! -s "${OUTFOLDER}"/report.pdf ]
 then
     quast.py --threads 4 --eukaryote -o "${OUTFOLDER}" "$assembly" 
 else
@@ -135,21 +174,21 @@ else
 fi
    
 #===============================================================================
-
-compleasm.py download "${database}"
-
-if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
-then
-    #run
-    compleasm.py run -t "$NCPUS_COMPLEASM" \
-            -l "${database}" \
-            -a "${assembly}" \
-            -o "${OUTFOLDER}"/compleasm
-else
-    echo -e "\n-------------------------------"
-    echo "compleasm already ok "
-    echo -e "\n-------------------------------"
-fi
+#
+#compleasm.py download "${database}"
+#
+#if [ ! -s "${OUTFOLDER}"/compleasm/summary.txt ]
+#then
+#    #run
+#    compleasm.py run -t "$NCPUS_COMPLEASM" \
+#            -l "${database}" \
+#            -a "${assembly}" \
+#            -o "${OUTFOLDER}"/compleasm
+#else
+#    echo -e "\n-------------------------------"
+#    echo "compleasm already ok "
+#    echo -e "\n-------------------------------"
+#fi
 
 #===============================================================================
 eval "$(conda shell.bash hook)"
@@ -166,7 +205,7 @@ do
             --out_path "${OUTFOLDER}"/ \
             -i "${assembly}" \
             -l "${database}" \
-            -m genome \
+            -m genome -f\
             "$genefinder"
     else
         echo "busco already ok"

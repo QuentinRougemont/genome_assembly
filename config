@@ -18,6 +18,8 @@ buscotype="miniprot"       #Type for Busco : (1) augustus  (2) metaeuk (3) minip
 BAM=""             #RAW HiFi only : the bam file
 #HiFi optional:
 #FASTQ=""           #optional: full path to a fastq.gz in case of already basecall nano or hifi
+keep_primary=""     #for hifiasm : string: YES/NO - do we keep only the primary assembly ?
+no_purge=""	        #for hifiasm : string: YES/NO - set -l0 option to disable the purging duplication step
 
 #--------------------------------------------------------------------------------------------
 #ONT ONLY compulsory parameters:

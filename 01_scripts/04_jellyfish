@@ -26,16 +26,33 @@ ploidy=$2       #an integer : either 1 or 2
 kmer_length=$3  #generally use the size of 21
 datatype=$4     #hifi or ONT
 #===============================================================================
+source config
 source cpu_mem
 
 # - jellyfish 
 outdir=04_jellyfish
 mkdir $outdir 2>/dev/null
 
-if [ ! -s "$outdir"/reads.histo ] 
+minsize=10000
+histfile="$outdir"/reads.histo
+if [ -s $histfile ] 
+then
+    filesize=$(wc -c <$histfile )
+else
+    filesize=0
+fi
+#---------  run minimap ----------#
+if [ "$filesize" -lt "$minsize" ]
 then
    #run jellyfish 
-    jellyfish count -C -m 21 -s 1000000000 -t "$NCPUS_JELLY" <(zcat "$input") -o "$outdir"/reads.jf
+    echo "running jellyfish count"
+       if file --mime-type "$input" | grep -q gzip$; then
+	   #run jellyfish 
+           jellyfish count -C -m 21 -s 1000000000 -t "$NCPUS_JELLY" <(zcat "$input") -o "$outdir"/reads.jf
+       else
+           jellyfish count -C -m 21 -s 1000000000 -t "$NCPUS_JELLY" <(cat "$input") -o "$outdir"/reads.jf
+       fi
+
 
     if ! jellyfish histo -t "$NCPUS_JELLY" "$outdir"/reads.jf > "$outdir"/reads.histo ; then 
 	    echo "jellyfish failed"
@@ -46,6 +63,7 @@ fi
 # - genomescope2:
 if [ ! -s "$outdir"/linear_plot.png ] 
 then
+    echo "running genomescope2"
     if ! genomescope2 -i "$outdir"/reads.histo  -k "$kmer_length" -p "$ploidy" -o "$outdir" ; 
     then
     	echo "genomescope failed"

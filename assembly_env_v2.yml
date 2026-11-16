@@ -42,6 +42,7 @@ dependencies:
   - r-gtsummary=2.6.1
   - r-rsvg=2.6.1
   - r-gdtools=0.5.1
+  - r-svglite=2.2.2
     #shitty packages (installed separately):
 #  - busco=6.0.0
 #  - medaka=2.1.0

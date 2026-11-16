@@ -1,0 +1,51 @@
+#file containing parameter for genome assembly:
+#INPUT CONFIGURATION ----------------------------------------------------------------------
+datatype="hifi" #either: 'nano-hq', 'nano-raw', 'hifi'
+SPECIES="fungi001"                 #an id/name for the species/strain/etc : eg. fungi001
+
+#OTHER COMPULSORY PARAMETERS ---------------------------------------------------------------
+assembler="hifiasm"        #either: (1) flye, (2) hifiasm, (3) canu
+genomesize="30000000"      #integer: size of the genome in base pair
+ploidy="1"                 #integer: '1' for haploid, '2' for diploid
+buscodatabase="microbotryomycetes_odb12.2"    #busco database to choose 
+                                              #can be obtained through :
+                                              #busco --list-dataset 
+                                              #eg: basidiomycota
+buscotype="miniprot"       #Type for Busco : (1) augustus  (2) metaeuk (3) miniprot
+
+#--------------------------------------------------------------------------------------------
+#HiFi ONLY compulsory parameters: 
+BAM=""             #RAW HiFi only : the bam file
+#HiFi optional:
+FASTQ="/home/quentin/assembly/HiFi/fungi001.fastq.gz"           #optional: full path to a fastq.gz in case of already basecall nano or hifi
+keep_primary="YES"         #for hifiasm : do we keep only the primary assembly ?
+no_purge="YES"		   #for hifiasm : set -l0 option to disable the purging duplication step
+keep_primary=""     #for hifiasm : string: YES/NO - do we keep only the primary assembly ?
+no_purge=""	        #for hifiasm : string: YES/NO - set -l0 option to disable the purging duplication step
+
+#--------------------------------------------------------------------------------------------
+#ONT ONLY compulsory parameters:
+pod5=""  #pod5/       #RAW nano only: folder containing the raw 'pod5'
+MODEL="dna_r10.4.1_e8.2_400bps_sup@v5.2.0"  #a model for basecalling: 
+                                            #ex: dna_r10.4.1_e8.2_400bps_sup@v4.3.0 
+                                            #models are available at:
+                                            #https://software-docs.nanoporetech.com/dorado/latest/models/list/
+
+#OPTIONAL ONT
+#FASTQ=""                   # path of fastq.gz if basecalling already done
+DORADO_CORRECT="NO"       # string: YES/NO to specify if
+                           #  HERRO correction of ONT read should be performed
+                           # Detail on HERRO correction is availabl here:
+                           # https://github.com/lbcb-sci/herro
+#-------------------------------------------------------------------------------------------
+#OPTIONAL QUALITY FILTERING ----------------------------------------------------------------
+removeLowQualContigs="YES" #sting YES/NO to specify if contig whose proportion of read with 
+                           #MAPQ = 0 should be removed if they exceed a given threshold 
+                           #
+threshold=0.9              #remove contig whose at least $threshold of supporting reads have MAPQ = 0 
+                           #according to minimap2 mapping
+
+
+#OPTIONAL FOR FSC-GX ONLY:
+taxid=""                  #An ID for the studied taxon (e.g: 4751 for fungi)
+gxdb=""                   #path to fcs-gx database (must be installed before) 
