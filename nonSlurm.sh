@@ -45,13 +45,25 @@ if [[ "${datatype,,}" == "hifi" ]]; then
          "$SCRIPTPATH"01_extractHifi.sh "${BAM}"     
         FASTQ=02_FilteredHifi/"${SPECIES}".fastq.gz
         "$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh "${FASTQ}" "${genomesize}"   
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]] ; then
+            printf "GC and len computation error"
+            exit   1
+        fi
     else 
        echo "species is $SPECIES"
        echo "submitting GC content and plot code"
-       #"$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh ${FASTQ} "${genomesize}"   
+       "$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh ${FASTQ} "${genomesize}"   
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]] ; then
+            printf "GC and len computation error"
+            exit   1
+        fi
     fi
        echo "submitting Jellyfish"
         "$SCRIPTPATH"/04_jellyfish ${FASTQ} 	     
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]] ; then
+            printf "jellyfish/genome scope error"
+            exit   1
+        fi
 	   echo "submitting genome assemly code"	
         "$SCRIPTPATH"/05_hifi_assembler.sh "${FASTQ}"  
 fi
@@ -61,29 +73,46 @@ if [[ "${datatype,,}" == "nano-hq" ]]; then
       exit 1
     fi
     if [[ -z "${SPECIES}" ]] ; then SPECIES="sample0001" ; fi
-    if [ -e "$pod5" ] ; then 
+    if [ ! -z "$(ls -A "$pod5" )" ] ; then 
         echo -e "  "$SCRIPTPATH"/00_dorado.sh "$pod5" "$SPECIES" "$MODEL"   " 
-        p0=$(sbatch  "$SCRIPTPATH"/00_dorado.sh "$pod5" "$SPECIES" "$MODEL"    )
+        "$SCRIPTPATH"/00_dorado.sh "$pod5" "$SPECIES" "$MODEL"    
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]] ; then
+            printf "dorado error check your data path and config file"
+            exit   1
+        fi
+
         if [ "$DORADO_CORRECT" = "NO" ] ; then
             FASTQ=02_raw/"${SPECIES}".fastq.gz
         else
             FASTQ=02_raw/"${SPECIES}".corrected.fasta
         fi
 
-        p1=$( "$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh "${FASTQ}" "${genomesize}"   )
+        "$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh "${FASTQ}" "${genomesize}"   
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]] ; then
+            printf "GC and len computation error"
+            exit   1
+        fi
+
     else 
-        p1=$(sbatch "$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh "${FASTQ}" "${genomesize}"   )
+        "$SCRIPTPATH"/02_awk_fastq_length_GCcontent.sh "${FASTQ}" "${genomesize}"   
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]] ; then
+            printf "GC and len computation error"
+            exit   1
+        fi
+
     fi
-    p2=$( "$SCRIPTPATH"/04_jellyfish ${FASTQ} 	    ) 
-    p3=$( "$SCRIPTPATH"/06_ONT_assembler.sh "${FASTQ}"  )
+    "$SCRIPTPATH"/04_jellyfish ${FASTQ}
+     if [[  "${PIPESTATUS[0]}" -ne 0 ]] ; then
+        printf "jellyfish/genome scope error"
+        exit   1
+     fi
+
+    "$SCRIPTPATH"/06_ONT_assembler.sh "${FASTQ}" 
 fi
    if [[ "${assembler,,}" == "hifiasm" ]] && [ "$DORADO_CORRECT" = "NO" ]  ; then
-	   printf 'zoro'
        #if [[ "$keep_primary" = "YES"  ]] && [[ "$no_purge" = "YES" ]] ; then
 	if [ "$no_purge" = "YES" ] && [ "$keep_primary" = "YES" ] ; then
-
-	   printf 'Toro'
-           p="primary"
+       p="primary"
 	   l="l0"
            assembly=05_"${SPECIES}"_"${assembler}"_"$l"_"$p"/"${SPECIES}".p_ctg.fasta
        elif [ "$keep_primary" = "YES"  ] && [ "$no_purge" = "NO" ] ; then

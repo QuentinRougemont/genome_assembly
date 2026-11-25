@@ -34,7 +34,7 @@ then
     if file --mime-type "$fastq" | grep -q gzip$; then
        echo "$fastq is gzipped"
         zcat "$fastq" \
-           | awk '{
+           | awk -F"\t" '{
               if(NR%4==1) 
                   {printf(">%s\t",substr($0,2));} 
               else if(NR%4==2) print length "\t" gsub(/[GC]/, "")
@@ -43,7 +43,7 @@ then
            |gzip > "$OUTFOLDER"/"$BASE".len.gc.gz
      else
         echo "$fastq is not gzipped"
-        awk '{
+        awk -F"\t" '{
               if(NR%4==1) 
                   {printf(">%s\t",substr($0,2));} 
               else if(NR%4==2) print length "\t" gsub(/[GC]/, "")
@@ -57,7 +57,7 @@ else
 fi
 Rscript 01_scripts/Rscripts/plot_len_gc.R  "$OUTFOLDER"/"$BASE".len.gc.gz
 
-zcat "$OUTFOLDER"/"$BASE".len.gc.gz | awk '{s+=$2}END{print "mean read length:\t" s/NR}' > reads.stats 
+zcat "$OUTFOLDER"/"$BASE".len.gc.gz | awk '{s+=$2}END{print "mean read length:\t" s/NR}' > reads.stats.txt  
 zcat "$OUTFOLDER"/"$BASE".len.gc.gz |awk 'NR==1{min = $2 +0 ; next}{if ($2 < min) min=$2;} END{print "min read length :\t"min}' >> reads.stats.txt
 zcat "$OUTFOLDER"/"$BASE".len.gc.gz |awk 'NR==1{max = $2 +0 ; next}{if ($2 > max) max=$2;} END{print "max read length :\t"max}' >> reads.stats.txt
 

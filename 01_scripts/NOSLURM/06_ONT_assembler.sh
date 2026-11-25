@@ -37,8 +37,7 @@ if ! bash  ./01_scripts/06_ONT_assembler.sh "$INFOLDER" \
         "${datatype}" \
         "${assembler}" \
         "${buscodatabase}"  \
-        "${buscotype}" \
-        "${NCPU}"
+        "${buscotype}" 
 then
     echo "erreur ONT assembly failed"
     exit 1
